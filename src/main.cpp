@@ -1,4 +1,5 @@
 #include "BufferParser.h"
+#include "Dashboard.h"
 #include "InputParameters.h"
 #include "Reader.h"
 
@@ -19,9 +20,7 @@
             bp.put_byte(r.get_byte());
         }
         if (bp.ready()) {
-            db.consume(bp.get_buffer());
+            //db.consume(bp.get_buffer());
         }
     }
-
-    return 0;
 }

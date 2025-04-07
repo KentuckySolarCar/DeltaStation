@@ -4,6 +4,7 @@
 #include "Reader.h"
 
 #include <cstdint>
+#include <cstdio>
 
 #include "common.h"
 

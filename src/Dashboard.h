@@ -14,8 +14,11 @@ public:
 
 private:
     class Group {
+        static constexpr char REFRESH_SYMBOLS[] = {'|', '/', '-', '\\'};
         std::unordered_map<std::string, double> lines{};
-        char refresh_status = '|';
+        int refresh_status = 0;
+
+        friend class Dashboard;
     };
 
     std::unordered_map<std::string, Group> groups;

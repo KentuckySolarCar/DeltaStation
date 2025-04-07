@@ -5,7 +5,9 @@
 
 namespace DS {
     Dashboard::Dashboard() {
-        groups.insert(std::make_pair("mtA", Group()));
+        auto mtA = Group();
+        groups.insert(std::make_pair("mtA", mtA));
+
         groups.insert(std::make_pair("mtB", Group()));
         groups.insert(std::make_pair("gps", Group()));
         groups.insert(std::make_pair("arr", Group()));
