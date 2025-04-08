@@ -11,7 +11,11 @@ namespace DS {
     void Dashboard::print() const {
         using namespace std;
 
+#if defined(_WIN32) || defined(_WIN64)
+        system("cls");
+#else
         system("clear");
+#endif
 
         cout << REFRESH_SYMBOLS[mta_refresh] << " Motor A: \n";
         cout
