@@ -22,14 +22,4 @@ constexpr int TIME_OFFSET = 6;
 constexpr int DATA_OFFSET = TIME_OFFSET + sizeof(int);
 constexpr int DATA_LENGTH = BUFFER_LENGTH - DATA_OFFSET;
 
-constexpr int UNDEFINED_MESSAGE = 0;
-constexpr int LEFT_MOTOR_MESSAGE = 1;
-constexpr int RIGHT_MOTOR_MESSAGE = 2;
-constexpr int GPS_MESSAGE = 3;
-constexpr int MPPT_MESSAGE = 4;
-constexpr int BATTERY_MESSAGE = 5;
-constexpr int DRIVER_INPUT_MESSAGE = 6;
-constexpr int STATUS_MESSAGE = 7;
-constexpr int SENSOR_MESSAGE = 8;
-
 #endif //COMMON_H

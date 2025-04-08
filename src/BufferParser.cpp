@@ -3,6 +3,7 @@
 
 #include "BufferParser.h"
 
+#include <cstdio>
 #include <cstring>
 
 namespace DS {
@@ -13,10 +14,10 @@ namespace DS {
         // b[5]: message length
         // b[6-9]: unix timestamp
 
-        this->type = back[MESSAGE_TYPE_BYTE];
+        this->type = static_cast<BufferType>(back[MESSAGE_TYPE_BYTE]);
         this->length = back[ACTUAL_MESSAGE_LENGTH_OFFSET];
         this->timestamp = *reinterpret_cast<const int *>(&back[0] + TIME_OFFSET);
-        memcpy(this->data, &back[DATA_OFFSET], BUFFER_LENGTH - DATA_OFFSET);
+        memcpy(this->data, &back[TIME_OFFSET], MSG_LENGTH);
     }
 
     void BufferParser::put_byte(uint8_t c) {
@@ -49,6 +50,10 @@ namespace DS {
             // create and digest buffer
             // emplace_back takes the parameters for the constructor of a class and places uses them to "emplace" a new
             // object in the vector using a constructor assumed by the compiler.
+
+            this->packaged_buffer = Buffer(decoded);
+            this->buffer_ready = true;
+            buf_idx = 0;
 
             delete decoded;
         }

@@ -23,19 +23,4 @@ namespace DS {
     Reader::~Reader() {
         back.closeDevice();
     }
-
-    namespace {
-        uint8_t _sample_buffer[MSG_LENGTH] {
-            'U', 'K', 'S', 'C', 1, LEFT_MOTOR_MESSAGE, 0, //TODO
-        };
-        uint8_t _curr_pos = 0;
-    }
-
-    char Reader::_test_get_byte() {
-        char ret = static_cast<char>(_sample_buffer[_curr_pos++]);
-        if (_curr_pos >= MSG_LENGTH) {
-            _curr_pos = 0;
-        }
-        return ret;
-    }
 } // DS

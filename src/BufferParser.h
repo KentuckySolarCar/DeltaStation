@@ -13,8 +13,19 @@ namespace DS {
 
 class BufferParser {
 public:
-    class Buffer {
-    public:
+    enum BufferType {
+        UndefinedMessage = 0,
+        LeftMotorMessage = 1,
+        RightMotorMessage = 2,
+        GpsMessage = 3,
+        MpptMessage = 4,
+        BatteryMessage = 5,
+        DriverInputMessage = 6,
+        StatusMessage = 7,
+        SensorMessage = 8,
+    };
+
+    struct Buffer {
         Buffer() = default;
 
         // The "explicit" keyword prevents C++ from allowing this construction:
@@ -24,11 +35,11 @@ public:
         // Buffer b = Buffer(back);
         // It is typically best practice to use "explicit" wherever possible.
         explicit Buffer(const uint8_t back[MSG_LENGTH]);
-    private:
-        uint8_t type{UNDEFINED_MESSAGE};
+
+        BufferType type{UndefinedMessage};
+        uint8_t data[MSG_LENGTH]{};
         uint8_t length{0};
         int timestamp{0};
-        uint8_t data[DATA_LENGTH]{};
     };
 
     BufferParser() = default;
