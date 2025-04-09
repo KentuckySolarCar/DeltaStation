@@ -1,2 +1,13 @@
+# Cmake
 /cmake-build-debug
 /build
+
+# IDE/Text editor files & folders
+.idea/
+.vscode/
+
+# ccls/clangd files
+/.ccls
+.ccls-cache/
+/compile_commands.json
+.cache/
