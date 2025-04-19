@@ -55,6 +55,10 @@ namespace DS {
                     usage();
                     exit(1);
                 }
+            } else if (streq(argv[curr_arg], "--debug")) {
+                curr_arg++;
+                debug = true;
+                printf("Using Debug Mode\n");
             } else {
                 printf("Input error: unknown flag: %s\n", argv[curr_arg]);
                 usage();
@@ -62,7 +66,7 @@ namespace DS {
             }
         }
 
-        if (!port || baud == -1) {
+        if (!debug && (!port || baud == -1)) {
             usage();
             exit(1);
         }

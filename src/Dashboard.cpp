@@ -6,7 +6,19 @@
 #include <iostream>
 
 namespace DS {
-    Dashboard::Dashboard() = default;
+    Dashboard::Dashboard() {
+        // TODO: configure this line for cross-platform; what other window managers should we account for?
+        gp << "set term wxt 1 noraise\n";
+
+        mta_power_history.resize(MAX_MOTOR_HISTORY);
+        mtb_power_history.resize(MAX_MOTOR_HISTORY);
+    }
+
+    Dashboard::~Dashboard() {
+        printf("Exiting...\n");
+        gp << "unset output\n";
+        gp << "exit gnuplot\n";
+    }
 
     void Dashboard::print() const {
         using namespace std;
@@ -51,55 +63,100 @@ namespace DS {
 
         cout << REFRESH_SYMBOLS[bat_refresh] << " Battery: \n";
         cout
-            << "    Max Voltage: " << bat.max_v << "\n"
-            << "    Min Voltage: " << bat.min_v << "\n"
-            << "    Avg Voltage: " << bat.avg_v << "\n"
-            << "    Current: " << bat.current << "\n"
-            << "    Max Temperature: " << bat.max_t << "\n"
-            << "    Min Temperature: " << bat.min_t << "\n"
-            << "    Avg Temperature: " << bat.avg_t << "\n"
-            << "    State of Charge: " << bat.soc << "\n";
+                << "    Max Voltage: " << bat.max_v << "\n"
+                << "    Min Voltage: " << bat.min_v << "\n"
+                << "    Avg Voltage: " << bat.avg_v << "\n"
+                << "    Current: " << bat.current << "\n"
+                << "    Max Temperature: " << bat.max_t << "\n"
+                << "    Min Temperature: " << bat.min_t << "\n"
+                << "    Avg Temperature: " << bat.avg_t << "\n"
+                << "    State of Charge: " << bat.soc << "\n";
 
         cout << REFRESH_SYMBOLS[drv_refresh] << " Driver Input: \n";
         cout
-            << "    Throttle Percent: " << drv.throt_pct << "\n"
-            << "    Regen Percent: " << drv.regen_pct << "\n"
-            << "    Raw Throttle: " << drv.throt_raw << "\n"
-            << "    Raw Regen: " << drv.regen_raw << "\n"
-            << "    Steering: " << drv.steering << "\n"
-            << "    Ten-Volt Bus: " << drv.ten_v_bus << "\n";
+                << "    Throttle Percent: " << drv.throt_pct << "\n"
+                << "    Regen Percent: " << drv.regen_pct << "\n"
+                << "    Raw Throttle: " << drv.throt_raw << "\n"
+                << "    Raw Regen: " << drv.regen_raw << "\n"
+                << "    Steering: " << drv.steering << "\n"
+                << "    Ten-Volt Bus: " << drv.ten_v_bus << "\n";
 
         cout << REFRESH_SYMBOLS[sta_refresh] << " Status: \n";
         cout
-            << "    Throttle Percent: " << drv.throt_pct << "\n"
-            << "    Regen Percent: " << drv.regen_pct << "\n"
-            << "    Raw Throttle: " << drv.throt_raw << "\n"
-            << "    Raw Regen: " << drv.regen_raw << "\n"
-            << "    Steering: " << drv.steering << "\n"
-            << "    Ten-Volt Bus: " << drv.ten_v_bus << "\n";
+                << "    Left: " << sta.left << "\n"
+                << "    Right: " << sta.right << "\n"
+                << "    Log: " << sta.log << "\n";
     }
+
+    void Dashboard::display() {
+        gp << "set xrange [0:" << MAX_MOTOR_HISTORY << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
+        if (mta_data_position) {
+            gp << "set term wxt 0\n";
+            gp << "plot '-' using 1:2 with lines title 'Left Motor Power'\n";
+
+            const auto mta_slice = std::vector(
+                mta_power_history.begin(),
+                mta_power_history.begin() + std::min(mta_data_position, static_cast<int>(MAX_MOTOR_HISTORY))
+            );
+            gp.send1d(mta_slice);
+        }
+        if (mtb_data_position) {
+            gp << "set term wxt 1\n";
+            gp << "plot '-' using 1:2 with lines title 'Right Motor Power'\n";
+
+            const auto mtb_slice = std::vector(
+                mtb_power_history.begin(),
+                mtb_power_history.begin() + std::min(mtb_data_position, static_cast<int>(MAX_MOTOR_HISTORY))
+            );
+            gp.send1d(mtb_slice);
+        }
+    }
+
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
         switch (buffer.type) {
             case BufferParser::UndefinedMessage: {
                 std::cerr << "Undefined message found!" << "\n";
-            } break;
+            }
+            break;
             case BufferParser::LeftMotorMessage: {
                 memcpy(&mta, &buffer.data[0], sizeof(mta));
                 if (++mta_refresh > 3) mta_refresh = 0;
-            } break;
+
+                mta_power_history.at(mta_data_position % MAX_MOTOR_HISTORY) = {
+                    mta_data_position % MAX_MOTOR_HISTORY, mta.current * mta.voltage
+                };
+                mta_data_position++;
+            }
+            break;
             case BufferParser::RightMotorMessage: {
                 memcpy(&mtb, &buffer.data[0], sizeof(mtb));
                 if (++mtb_refresh > 3) mtb_refresh = 0;
-            } break;
+
+                mtb_power_history.at(mtb_data_position % MAX_MOTOR_HISTORY) = {
+                    mtb_data_position % MAX_MOTOR_HISTORY, mtb.current * mtb.voltage
+                };
+                mtb_data_position++;
+            }
+            break;
             case BufferParser::GpsMessage: {
-                memcpy(&gps, &buffer.data[0], sizeof(gps));
+                size_t offset = 0;
+                memcpy(&gps.millis, &buffer.data[offset], sizeof(gps.millis));
+
+                offset += sizeof(gps.millis);
+                memcpy(&gps.latitude, &buffer.data[offset], sizeof(gps.latitude) + sizeof(gps.longitude));
+
+                offset += sizeof(gps.latitude) + sizeof(gps.longitude);
+                memcpy(&gps.hdop, &buffer.data[offset], sizeof(gps.hdop) + sizeof(gps.altitude));
+
                 if (++gps_refresh > 3) gps_refresh = 0;
-            } break;
+            }
+            break;
             case BufferParser::MpptMessage: {
                 memcpy(&arr, &buffer.data[0], sizeof(arr));
                 if (++arr_refresh > 3) arr_refresh = 0;
-            } break;
+            }
+            break;
             case BufferParser::BatteryMessage: {
                 // due to padding issues, we need to set elements explicitly here
                 memcpy(&bat.millis, &buffer.data[0], sizeof(int32_t));
@@ -113,18 +170,22 @@ namespace DS {
                 memcpy(&bat.soc, &buffer.data[offsetof(bat_t, soc) - 2], sizeof(float));
 
                 if (++bat_refresh > 3) bat_refresh = 0;
-            } break;
+            }
+            break;
             case BufferParser::DriverInputMessage: {
                 memcpy(&drv, &buffer.data[TIME_OFFSET], sizeof(drv));
                 if (++drv_refresh > 3) drv_refresh = 0;
-            } break;
+            }
+            break;
             case BufferParser::StatusMessage: {
                 memcpy(&sta, &buffer.data[TIME_OFFSET], sizeof(sta));
                 if (++sta_refresh > 3) sta_refresh = 0;
-            } break;
+            }
+            break;
             case BufferParser::SensorMessage: {
                 std::cerr << "Sensor message not supported right now." << "\n";
-            } break;
+            }
+            break;
         }
     }
 

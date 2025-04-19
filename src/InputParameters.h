@@ -20,19 +20,25 @@ public:
     const char *get_port() const { return port; }
     int get_baud() const { return baud; }
 
+    bool debug_mode() {
+        return debug;
+    }
+
 private:
     const char *outfile{};
     const char *port{};
     int baud = -1;
+    bool debug = false;
 
     /**
      * Prints a message on how to use this program. Only printed if the first command-line argument is `help`.
      */
     static void usage() {
-        printf("Usage: ds --port PORT --baud BAUD [--out FILE]\n");
-        printf("\t--port: Specify PORT from which serial connection is found.\n");
-        printf("\t--baud: Specify BAUD rate for serial connection.\n");
-        printf("\t--out: Specify FILE to output.\n");
+        printf("Usage: ds --port PORT --baud BAUD [options]\n");
+        printf("\t--port PORT: Specify PORT from which serial connection is found.\n");
+        printf("\t--baud BAUD: Specify BAUD rate for serial connection.\n");
+        printf("\t--out FILE: Specify FILE to output.\n");
+        printf("\t--debug: Enter debug mode. --port & --baud are unnecessary with this.\n");
     }
 
     static bool streq(const char *s0, const char *s1);

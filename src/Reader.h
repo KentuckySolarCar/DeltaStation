@@ -13,25 +13,19 @@ public:
 
     Reader(const char *port, int baud);
 
-    ~Reader();
+    virtual ~Reader();
 
-    int available() {
+    virtual int available() {
         return back.available();
     }
 
-    char get_byte() {
+    virtual char get_byte() {
         char c;
         back.readChar(&c, reader_timeout);
         return c;
     }
 
     serialib &get_backend() { return back; }
-
-    // NOTE: this is for testing purposes only. do not use this function outside of debugging.
-    static char _test_get_byte();
-    static char _test_available() {
-        return 1;
-    }
 
 private:
     serialib back;

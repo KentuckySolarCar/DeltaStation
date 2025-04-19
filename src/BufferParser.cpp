@@ -46,7 +46,8 @@ namespace DS {
 
             // re-encode ReedSolomon
             auto decoded = new uint8_t[MSG_LENGTH];
-            rs.Decode(buffer, decoded);
+            //rs.Decode(buffer, decoded);
+            memcpy(decoded, buffer, MSG_LENGTH);
             // create and digest buffer
             // emplace_back takes the parameters for the constructor of a class and places uses them to "emplace" a new
             // object in the vector using a constructor assumed by the compiler.

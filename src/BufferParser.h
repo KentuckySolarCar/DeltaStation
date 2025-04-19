@@ -4,8 +4,6 @@
 #ifndef BUFFERPARSER_H
 #define BUFFERPARSER_H
 
-#include <vector>
-
 #include "common.h"
 #include "RS-FEC.h"
 

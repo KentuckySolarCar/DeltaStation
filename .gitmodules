@@ -1,3 +1,6 @@
 [submodule "libs/serialib"]
 	path = libs/serialib
 	url = https://github.com/imabot2/serialib
+[submodule "libs/gnuplot-iostream"]
+	path = libs/gnuplot-iostream
+	url = https://github.com/dstahlke/gnuplot-iostream

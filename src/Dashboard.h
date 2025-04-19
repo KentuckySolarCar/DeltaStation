@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <gnuplot-iostream.h>
 
 #include "BufferParser.h"
 
@@ -15,27 +16,43 @@ namespace DS {
 class Dashboard {
 public:
     Dashboard();
+    ~Dashboard();
 
     void print() const;
+    void display();
 
-    void consume(const BufferParser::Buffer & buffer);
+    void consume(const BufferParser::Buffer &buffer);
 
 private:
     static char REFRESH_SYMBOLS[];
+    static constexpr size_t MAX_MOTOR_HISTORY = 60;
+    static constexpr size_t MAX_VISIBLE_POWER = 100;
 
+    Gnuplot gp;
+
+    // Left motor
     struct mta_t {
         int32_t millis;
         float voltage, current, speed, odometer, battery_ah;
     } mta{};
     int mta_refresh{};
+    int mta_data_position = 0;
+    std::vector<std::tuple<float, float>> mta_power_history;
+
+    // Right motor
     struct mtb_t {
         int32_t millis;
         float voltage, current, speed, odometer, battery_ah;
     } mtb{};
     int mtb_refresh{};
+    int mtb_data_position = 0;
+    std::vector<std::tuple<float, float>> mtb_power_history;
+
     struct gps_t {
         int32_t millis;
-        float latitude, longitude, hdop, altitude;
+        // NOTE: this is different from previous delta station
+        double latitude, longitude;
+        float hdop, altitude;
     } gps{};
     int gps_refresh{};
     struct arr_t {
