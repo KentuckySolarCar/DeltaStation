@@ -29,12 +29,15 @@ int main(const int argc, char *argv[]) {
         }
         if (r->available()) {
             bp.put_byte(r->get_byte());
+            db.byte_increment();
         }
         if (bp.ready()) {
             db.consume(bp.get_buffer());
-            db.print();
         }
 
         db.display();
+        db.print();
+        db.update();
+        usleep(1000);
     }
 }

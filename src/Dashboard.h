@@ -23,6 +23,23 @@ public:
 
     void consume(const BufferParser::Buffer &buffer);
 
+    void byte_increment() {
+        this->bytes_read++;
+
+    }
+
+    void update() {
+        auto time = std::chrono::system_clock::now();
+        this->dt = static_cast<double>((time - prev_time).count()) / 1e9;
+
+        if (static_cast<double>((time - this->second_mark).count()) >= 1e9) {
+            this->second_mark = time;
+            this->bitrate = this->bytes_read * 8;
+            this->bytes_read = 0;
+        }
+        prev_time = time;
+    }
+
 private:
     static char REFRESH_SYMBOLS[];
     static constexpr size_t MAX_MOTOR_HISTORY = 60;
@@ -36,8 +53,7 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mta{};
     int mta_refresh{};
-    int mta_data_position = 0;
-    std::vector<std::tuple<float, float>> mta_power_history;
+    std::vector<std::pair<long, float>> mta_power_history;
 
     // Right motor
     struct mtb_t {
@@ -45,8 +61,7 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mtb{};
     int mtb_refresh{};
-    int mtb_data_position = 0;
-    std::vector<std::tuple<float, float>> mtb_power_history;
+    std::vector<std::pair<long, float>> mtb_power_history;
 
     struct gps_t {
         int32_t millis;
@@ -79,6 +94,16 @@ private:
         int32_t left, right, log;
     } sta{};
     int sta_refresh{};
+
+    std::chrono::system_clock::time_point start_time;
+
+    std::chrono::system_clock::time_point prev_time;
+    std::chrono::system_clock::time_point second_mark;
+
+    double dt;
+
+    uint32_t bytes_read;
+    uint32_t bitrate;
 };
 
 } // DS

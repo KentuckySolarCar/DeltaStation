@@ -3,7 +3,9 @@
 
 #ifndef READER_H
 #define READER_H
+
 #include <serialib.h>
+#include <cstdint>
 
 namespace DS {
 
@@ -19,7 +21,7 @@ public:
         return back.available();
     }
 
-    virtual char get_byte() {
+    virtual uint8_t get_byte() {
         char c;
         back.readChar(&c, reader_timeout);
         return c;

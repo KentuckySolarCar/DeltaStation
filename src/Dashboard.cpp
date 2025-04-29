@@ -6,12 +6,17 @@
 #include <iostream>
 
 namespace DS {
+    // Which window manager to use for displaying live graphs. Tested options include: wxt, x11
+    static const char *WINDOW_MANAGER = "wxt";
+
     Dashboard::Dashboard() {
         // TODO: configure this line for cross-platform; what other window managers should we account for?
-        gp << "set term wxt 1 noraise\n";
+        gp << "set term " << WINDOW_MANAGER << " 1 noraise\n";
 
         mta_power_history.resize(MAX_MOTOR_HISTORY);
         mtb_power_history.resize(MAX_MOTOR_HISTORY);
+
+        start_time = std::chrono::high_resolution_clock::now();
     }
 
     Dashboard::~Dashboard() {
@@ -86,34 +91,33 @@ namespace DS {
                 << "    Left: " << sta.left << "\n"
                 << "    Right: " << sta.right << "\n"
                 << "    Log: " << sta.log << "\n";
+        cout << "Bitrate: " << this->bitrate << "\n";
     }
 
     void Dashboard::display() {
-        gp << "set xrange [0:" << MAX_MOTOR_HISTORY << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
-        if (mta_data_position) {
-            gp << "set term wxt 0\n";
+        if (!mta_power_history.empty()) {
+            const int data_high = static_cast<int>(mta_power_history.back().first);
+            const int data_low = data_high - 100;
+            gp << "set xrange [" << data_low << ":" << data_high << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
+            gp << "set term " << WINDOW_MANAGER << " 0\n";
             gp << "plot '-' using 1:2 with lines title 'Left Motor Power'\n";
 
-            const auto mta_slice = std::vector(
-                mta_power_history.begin(),
-                mta_power_history.begin() + std::min(mta_data_position, static_cast<int>(MAX_MOTOR_HISTORY))
-            );
-            gp.send1d(mta_slice);
+            gp.send1d(mta_power_history);
         }
-        if (mtb_data_position) {
-            gp << "set term wxt 1\n";
+        if (!mtb_power_history.empty()) {
+            const int data_high = static_cast<int>(mtb_power_history.back().first);
+            const int data_low = data_high - 100;
+            gp << "set xrange [" << data_low << ":" << data_high << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
+            gp << "set term " << WINDOW_MANAGER << " 1\n";
             gp << "plot '-' using 1:2 with lines title 'Right Motor Power'\n";
 
-            const auto mtb_slice = std::vector(
-                mtb_power_history.begin(),
-                mtb_power_history.begin() + std::min(mtb_data_position, static_cast<int>(MAX_MOTOR_HISTORY))
-            );
-            gp.send1d(mtb_slice);
+            gp.send1d(mtb_power_history);
         }
     }
 
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
+        auto time = std::chrono::high_resolution_clock::now();
         switch (buffer.type) {
             case BufferParser::UndefinedMessage: {
                 std::cerr << "Undefined message found!" << "\n";
@@ -121,22 +125,20 @@ namespace DS {
             break;
             case BufferParser::LeftMotorMessage: {
                 memcpy(&mta, &buffer.data[0], sizeof(mta));
+                mta.millis = buffer.timestamp;
                 if (++mta_refresh > 3) mta_refresh = 0;
 
-                mta_power_history.at(mta_data_position % MAX_MOTOR_HISTORY) = {
-                    mta_data_position % MAX_MOTOR_HISTORY, mta.current * mta.voltage
-                };
-                mta_data_position++;
+                mta_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9),
+                                               mta.current * mta.voltage);
             }
             break;
             case BufferParser::RightMotorMessage: {
                 memcpy(&mtb, &buffer.data[0], sizeof(mtb));
+                mtb.millis = buffer.timestamp;
                 if (++mtb_refresh > 3) mtb_refresh = 0;
 
-                mtb_power_history.at(mtb_data_position % MAX_MOTOR_HISTORY) = {
-                    mtb_data_position % MAX_MOTOR_HISTORY, mtb.current * mtb.voltage
-                };
-                mtb_data_position++;
+                mtb_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9),
+                                               mtb.current * mtb.voltage);
             }
             break;
             case BufferParser::GpsMessage: {
@@ -187,6 +189,7 @@ namespace DS {
             }
             break;
         }
+
     }
 
     char Dashboard::REFRESH_SYMBOLS[] = {'|', '/', '-', '\\'};
