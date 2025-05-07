@@ -6,9 +6,11 @@ project(DeltaStation)
 
 # Specify which language/version used for this project (C++20 is used here)
 set(CMAKE_CXX_STANDARD 20)
+set(ImGui_INSTALL_DIR libs/imgui)
 
 # Declare an executable to be built, and explicitly add every compilation unit (AKA every .cpp file) to this executable
-add_executable(ds libs/serialib/lib/serialib.cpp src/main.cpp
+add_executable(ds
+        src/main.cpp
         src/RS-FEC.h
         src/InputParameters.cpp
         src/InputParameters.h
@@ -21,15 +23,37 @@ add_executable(ds libs/serialib/lib/serialib.cpp src/main.cpp
         src/Dashboard.h
         src/DebugReader.cpp
         src/DebugReader.h
+        src/Window.cpp
+        src/Window.h
+
+        libs/serialib/lib/serialib.cpp
+
+        libs/implot/implot.cpp
+        libs/implot/implot.h
+        libs/implot/implot_internal.h
+        libs/implot/implot_items.cpp
+
+        ${ImGui_INSTALL_DIR}/imgui.cpp
+        ${ImGui_INSTALL_DIR}/imgui_demo.cpp
+        ${ImGui_INSTALL_DIR}/imgui_draw.cpp
+        ${ImGui_INSTALL_DIR}/imgui_tables.cpp
+        ${ImGui_INSTALL_DIR}/imgui_widgets.cpp
+
+        ${ImGui_INSTALL_DIR}/backends/imgui_impl_glfw.cpp
+        ${ImGui_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
-
-target_include_directories(ds PRIVATE "${CMAKE_SOURCE_DIR}/libs/gnuplot-iostream")
+find_package(OpenGL REQUIRED)
+add_subdirectory(libs/glfw)
 
 # Specify include directories for a certain target. A target is a library, executable, or anything that gets compiled by
 # CMake. As the `ds` target is a compiled executable, it is also a target. PRIVATE means that if another
 # target were to depend on `ds`, it would not inherit the same include directories or compile flags.
-target_include_directories(ds PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/libs/serialib/lib)
-target_link_libraries(ds ${Boost_LIBRARIES})
+target_include_directories(ds PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/libs/serialib/lib
+        ${CMAKE_SOURCE_DIR}/libs/implot
+        ${ImGui_INSTALL_DIR}
+)
 
+target_link_libraries(ds PRIVATE glfw OpenGL::GL)

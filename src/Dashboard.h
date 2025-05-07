@@ -4,12 +4,12 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
 
-#include <cstdint>
+#include <chrono>
 #include <string>
 #include <unordered_map>
-#include <gnuplot-iostream.h>
 
 #include "BufferParser.h"
+#include "Window.h"
 
 namespace DS {
 
@@ -18,34 +18,24 @@ public:
     Dashboard();
     ~Dashboard();
 
-    void print() const;
-    void display();
+    void print(std::ostream &buf) const;
 
     void consume(const BufferParser::Buffer &buffer);
 
     void byte_increment() {
         this->bytes_read++;
-
     }
 
-    void update() {
-        auto time = std::chrono::system_clock::now();
-        this->dt = static_cast<double>((time - prev_time).count()) / 1e9;
-
-        if (static_cast<double>((time - this->second_mark).count()) >= 1e9) {
-            this->second_mark = time;
-            this->bitrate = this->bytes_read * 8;
-            this->bytes_read = 0;
-        }
-        prev_time = time;
+    [[nodiscard]] bool should_close() const {
+        return closing;
     }
+
+    void update();
 
 private:
     static char REFRESH_SYMBOLS[];
     static constexpr size_t MAX_MOTOR_HISTORY = 60;
     static constexpr size_t MAX_VISIBLE_POWER = 100;
-
-    Gnuplot gp;
 
     // Left motor
     struct mta_t {
@@ -100,10 +90,15 @@ private:
     std::chrono::system_clock::time_point prev_time;
     std::chrono::system_clock::time_point second_mark;
 
-    double dt;
+    double dt{};
 
-    uint32_t bytes_read;
-    uint32_t bitrate;
+    uint32_t bytes_read{};
+    uint32_t bitrate{};
+    Window *window = nullptr;
+
+    bool closing = false;
+
+    friend class Window;
 };
 
 } // DS

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libs/gnuplot-iostream" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/implot" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/serialib" vcs="Git" />
   </component>
 </project>

@@ -11,8 +11,9 @@
 
 int main(const int argc, char *argv[]) {
     auto in = DS::InputParameters(argc, argv);
+    // TODO: local on stack or global with singletons?
+    // TODO: definitely incorporate buffer parser and reader into dashboard
     DS::BufferParser bp{};
-    DS::Dashboard db{};
 
     DS::Reader *r;
 
@@ -22,9 +23,11 @@ int main(const int argc, char *argv[]) {
         r = new DS::Reader(in.get_port(), in.get_baud());
     }
 
-    while (true) {
+    DS::Dashboard db{};
+
+    while (!db.should_close()) {
         if (!in.debug_mode() && !r->get_backend().isDeviceOpen()) {
-            fprintf(stderr, "Error: backend disconnected.");
+            std::cerr << "Serialib Error: backend disconnected." << std::endl;
             exit(-1);
         }
         if (r->available()) {
@@ -35,9 +38,6 @@ int main(const int argc, char *argv[]) {
             db.consume(bp.get_buffer());
         }
 
-        db.display();
-        db.print();
         db.update();
-        usleep(1000);
     }
 }

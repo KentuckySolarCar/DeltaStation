@@ -5,60 +5,49 @@
 
 #include <iostream>
 
+#include "Window.h"
+
 namespace DS {
-    // Which window manager to use for displaying live graphs. Tested options include: wxt, x11
-    static const char *WINDOW_MANAGER = "wxt";
-
     Dashboard::Dashboard() {
-        // TODO: configure this line for cross-platform; what other window managers should we account for?
-        gp << "set term " << WINDOW_MANAGER << " 1 noraise\n";
-
         mta_power_history.resize(MAX_MOTOR_HISTORY);
         mtb_power_history.resize(MAX_MOTOR_HISTORY);
 
         start_time = std::chrono::high_resolution_clock::now();
+        window = new Window(this);
     }
 
     Dashboard::~Dashboard() {
-        printf("Exiting...\n");
-        gp << "unset output\n";
-        gp << "exit gnuplot\n";
+        std::cout << "Exiting...\n";
     }
 
-    void Dashboard::print() const {
+    void Dashboard::print(std::ostream &buf) const {
         using namespace std;
 
-#if defined(_WIN32) || defined(_WIN64)
-        system("cls");
-#else
-        system("clear");
-#endif
-
-        cout << REFRESH_SYMBOLS[mta_refresh] << " Motor A: \n";
-        cout
+        buf << REFRESH_SYMBOLS[mta_refresh] << " Motor A: \n";
+        buf
                 << "    Voltage: " << mta.voltage << "\n"
                 << "    Current: " << mta.current << "\n"
                 << "    Speed: " << mta.speed << "\n"
                 << "    Odometer: " << mta.odometer << "\n"
                 << "    Battery Ah: " << mta.battery_ah << "\n";
 
-        cout << REFRESH_SYMBOLS[mtb_refresh] << " Motor B: \n";
-        cout
+        buf << REFRESH_SYMBOLS[mtb_refresh] << " Motor B: \n";
+        buf
                 << "    Voltage: " << mtb.voltage << "\n"
                 << "    Current: " << mtb.current << "\n"
                 << "    Speed: " << mtb.speed << "\n"
                 << "    Odometer: " << mtb.odometer << "\n"
                 << "    Battery Ah: " << mtb.battery_ah << "\n";
 
-        cout << REFRESH_SYMBOLS[gps_refresh] << " GPS: \n";
-        cout
+        buf << REFRESH_SYMBOLS[gps_refresh] << " GPS: \n";
+        buf
                 << "    Latitude: " << gps.latitude << "\n"
                 << "    Longitude: " << gps.longitude << "\n"
                 << "    HDOP: " << gps.hdop << "\n"
                 << "    Altitude: " << gps.altitude << "\n";
 
-        cout << REFRESH_SYMBOLS[arr_refresh] << " Array: \n";
-        cout
+        buf << REFRESH_SYMBOLS[arr_refresh] << " Array: \n";
+        buf
                 << "    1: " << arr.a1 << "\n"
                 << "    2: " << arr.a2 << "\n"
                 << "    3: " << arr.a3 << "\n"
@@ -66,8 +55,8 @@ namespace DS {
                 << "    5: " << arr.a5 << "\n"
                 << "    6: " << arr.a6 << "\n";
 
-        cout << REFRESH_SYMBOLS[bat_refresh] << " Battery: \n";
-        cout
+        buf << REFRESH_SYMBOLS[bat_refresh] << " Battery: \n";
+        buf
                 << "    Max Voltage: " << bat.max_v << "\n"
                 << "    Min Voltage: " << bat.min_v << "\n"
                 << "    Avg Voltage: " << bat.avg_v << "\n"
@@ -77,8 +66,8 @@ namespace DS {
                 << "    Avg Temperature: " << bat.avg_t << "\n"
                 << "    State of Charge: " << bat.soc << "\n";
 
-        cout << REFRESH_SYMBOLS[drv_refresh] << " Driver Input: \n";
-        cout
+        buf << REFRESH_SYMBOLS[drv_refresh] << " Driver Input: \n";
+        buf
                 << "    Throttle Percent: " << drv.throt_pct << "\n"
                 << "    Regen Percent: " << drv.regen_pct << "\n"
                 << "    Raw Throttle: " << drv.throt_raw << "\n"
@@ -86,35 +75,13 @@ namespace DS {
                 << "    Steering: " << drv.steering << "\n"
                 << "    Ten-Volt Bus: " << drv.ten_v_bus << "\n";
 
-        cout << REFRESH_SYMBOLS[sta_refresh] << " Status: \n";
-        cout
+        buf << REFRESH_SYMBOLS[sta_refresh] << " Status: \n";
+        buf
                 << "    Left: " << sta.left << "\n"
                 << "    Right: " << sta.right << "\n"
                 << "    Log: " << sta.log << "\n";
-        cout << "Bitrate: " << this->bitrate << "\n";
+        buf << "Bitrate: " << this->bitrate << "\n";
     }
-
-    void Dashboard::display() {
-        if (!mta_power_history.empty()) {
-            const int data_high = static_cast<int>(mta_power_history.back().first);
-            const int data_low = data_high - 100;
-            gp << "set xrange [" << data_low << ":" << data_high << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
-            gp << "set term " << WINDOW_MANAGER << " 0\n";
-            gp << "plot '-' using 1:2 with lines title 'Left Motor Power'\n";
-
-            gp.send1d(mta_power_history);
-        }
-        if (!mtb_power_history.empty()) {
-            const int data_high = static_cast<int>(mtb_power_history.back().first);
-            const int data_low = data_high - 100;
-            gp << "set xrange [" << data_low << ":" << data_high << "]\nset yrange [0:" << MAX_VISIBLE_POWER << "]\n";
-            gp << "set term " << WINDOW_MANAGER << " 1\n";
-            gp << "plot '-' using 1:2 with lines title 'Right Motor Power'\n";
-
-            gp.send1d(mtb_power_history);
-        }
-    }
-
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
         auto time = std::chrono::high_resolution_clock::now();
@@ -190,6 +157,22 @@ namespace DS {
             break;
         }
 
+    }
+
+    void Dashboard::update() {
+        window->update();
+
+        this->closing = window->should_close();
+
+        auto time = std::chrono::system_clock::now();
+        this->dt = static_cast<double>((time - prev_time).count()) / 1e9;
+
+        if (static_cast<double>((time - this->second_mark).count()) >= 1e9) {
+            this->second_mark = time;
+            this->bitrate = this->bytes_read * 8;
+            this->bytes_read = 0;
+        }
+        prev_time = time;
     }
 
     char Dashboard::REFRESH_SYMBOLS[] = {'|', '/', '-', '\\'};
