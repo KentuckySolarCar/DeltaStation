@@ -1,6 +1,12 @@
 [submodule "libs/serialib"]
 	path = libs/serialib
 	url = https://github.com/imabot2/serialib
-[submodule "libs/gnuplot-iostream"]
-	path = libs/gnuplot-iostream
-	url = https://github.com/dstahlke/gnuplot-iostream
+[submodule "libs/implot"]
+	path = libs/implot
+	url = https://github.com/epezent/implot
+[submodule "libs/glfw"]
+	path = libs/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "libs/imgui"]
+	path = libs/imgui
+	url = https://github.com/ocornut/imgui.git
