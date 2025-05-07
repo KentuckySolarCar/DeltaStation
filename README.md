@@ -17,6 +17,8 @@ packages are pulled, open a terminal in the directory of this README and run:
 git submodule update --init --recursive
 ```
 
+Once you've updated all your submodules, you need to configure your installation of ImGui. TODO: finish this tutorial.
+
 Once your submodules are successfully cloned, run the following commands to build your CMake project (assumes CMake
 version 3.15+):
 
@@ -28,3 +30,12 @@ cmake --build .
 ```
 
 You will then see an executable file called `ds` or `ds.exe` in your build directory.
+
+## TODOs
+Note these are in order of importance to the project.
+- [ ] Dropdowns/widgets for dashboard state instead of plain-text.
+- [ ] Toggle-able live graphs.
+- [ ] More live graphs for battery, GPS data, etc.
+- [ ] Logging configuration for dashboard state.
+- [ ] Background image.
+- [ ] Minesweeper :D
