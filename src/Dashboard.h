@@ -15,6 +15,9 @@ namespace DS {
 
 class Dashboard {
 public:
+    /**
+     * This constructor f
+     */
     Dashboard();
     ~Dashboard();
 
@@ -81,7 +84,7 @@ private:
     int drv_refresh{};
     struct sta_t {
         int32_t millis;
-        int32_t left, right, log;
+        int32_t left = 0b0101, right, log;
     } sta{};
     int sta_refresh{};
 

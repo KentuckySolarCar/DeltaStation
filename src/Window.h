@@ -3,6 +3,9 @@
 
 #ifndef WINDOW_H
 #define WINDOW_H
+
+#include <string>
+
 #include "GLFW/glfw3.h"
 
 namespace DS {
@@ -10,6 +13,30 @@ class Dashboard;
 
 class Window {
 public:
+    enum LimiterBits {
+        PWM = 1 << 0,
+        MotorCurrent = 1 << 1,
+        Velocity = 1 << 2,
+        BusCurrent = 1 << 3,
+        BusVoltageUpperLimit = 1 << 4,
+        BusVoltageLowerLimit = 1 << 5,
+        Temperature = 1 << 6,
+    };
+
+    enum ErrorBits {
+        HardwareOverCurrent = 1 << 0,
+        SoftwareOvercurrent = 1 << 1,
+        BusOvervoltage = 1 << 2,
+        BadHallSequence = 1 << 3,
+        WatchDogCausedLastReset = 1 << 4,
+        ConfigReadError = 1 << 5,
+        V15RailUnderLockout = 1 << 6,
+        IGBTDesaturation = 1 << 7,
+        AdapterNotPresent = 1 << 8,
+        MotorOverspeed = 1 << 9,
+    };
+
+
     static void error_callback(int error_code, const char * description);
 
     // TODO; explain 'explicit' keyword
@@ -30,6 +57,8 @@ public:
     [[nodiscard]] bool should_close() const {
         return closing;
     }
+
+    static std::string error_string(ErrorBits b);
 
 private:
     GLFWwindow *back = nullptr;
