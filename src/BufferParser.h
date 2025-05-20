@@ -11,6 +11,10 @@ namespace DS {
 
 class BufferParser {
 public:
+    /**
+     * This enumeration differentiates between packets received from Bottom Shell. The types correspond directly with an
+     * enumeration of a similar nature in the bottom shell repository, and ought to be maintained as such.
+     */
     enum BufferType {
         UndefinedMessage = 0,
         LeftMotorMessage = 1,
@@ -23,6 +27,10 @@ public:
         SensorMessage = 8,
     };
 
+    /**
+     * This struct is used as a temporary wrapper over a buffer. It is created directly from the BufferParser and
+     * shipped straight to Dashboard.
+     */
     struct Buffer {
         Buffer() = default;
 
@@ -34,21 +42,41 @@ public:
         // It is typically best practice to use "explicit" wherever possible.
         explicit Buffer(const uint8_t back[MSG_LENGTH]);
 
+        // See above enumeration
         BufferType type{UndefinedMessage};
+        // Data parsed from buffer (after RS-FEC decoding). Namely, bytes 10-40 of the incoming buffer.
         uint8_t data[MSG_LENGTH]{};
+        // Message length
         uint8_t length{0};
+        // Timestamp of received message
         int timestamp{0};
     };
 
     BufferParser() = default;
 
+    /**
+     * Put a byte into a temporary buffer. This function maintains two states:
+     * - In validate mode, it checks if the incoming byte (and subsequent calls) would begin a new valid packet.
+     * - In fill mode, it fills the buffer with data coming from serial until the buffer is full.
+     * TODO: additional validation can be done on the data with the `GDS` ending to a packet.
+     * @param c Character to put into the buffer.
+     */
     void put_byte(uint8_t c);
 
+    /**
+     * This function gives a reference to the last valid buffer the BufferParser has created. Upon doing so, the parser
+     * considers itself "empty", and ready to begin parsing a new buffer.
+     * @return Parsed buffer.
+     */
     Buffer &get_buffer() {
         buffer_ready = false;
         return packaged_buffer;
     }
 
+    /**
+     * Read return.
+     * @return If a buffer has been parsed since the last one received.
+     */
     bool ready() const { return buffer_ready; }
 
 private:
@@ -59,7 +87,7 @@ private:
     // storage for incoming data
     uint8_t buffer[BUFFER_LENGTH] = {};
 
-    // this buffer is consumed by
+    // this buffer is consumed by Dashboard; read forward-facing API functions.
     Buffer packaged_buffer{};
     bool buffer_ready = false;
 

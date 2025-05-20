@@ -115,11 +115,33 @@ namespace DS {
         glfwSwapBuffers(back);
     }
 
+    std::string Window::error_string(ErrorBits b) {
+        std::string s{};
+        if (b & HardwareOverCurrent)
+            s += "Hardware overcurrent\n";
+        if (b & SoftwareOvercurrent)
+            s += "Software overcurrent\n";
+        if (b & BusOvervoltage)
+            s += "Bus overvoltage\n";
+        if (b & BadHallSequence)
+            s += "Bad hall-effect sensor sequence\n";
+        if (b & WatchDogCausedLastReset)
+            s += "Watch dog caused the last reset\n";
+        if (b & ConfigReadError)
+            s += "Configuration read error\n";
+        if (b & V15RailUnderLockout)
+            s += "15V rail under lockout\n";
+        if (b & IGBTDesaturation)
+            s += "IGBT desaturation\n";
+        if (b & AdapterNotPresent)
+            s += "Adapter not present\n";
+        if (b & MotorOverspeed)
+            s += "Motor overspeed\n";
+        return s;
+    }
+
     void Window::car_state_window() {
         ImGui::Begin("Car State");
-
-        //auto buf = std::ostringstream();
-        //parent->print(buf);
 
         if (ImGui::TreeNode("Motors:")) {
             ImGui::Text("Left Motor Voltage: %f V", parent->mta.voltage);
@@ -155,7 +177,28 @@ namespace DS {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Status:")) {
-            ImGui::Text("TODO");
+            ImGui::BeginGroup();
+            if (!parent->sta.left) {
+                ImGui::Text("Left Motor Okay!");
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+                ImGui::Text("Left Motor Error!");
+                ImGui::Text("%s", error_string(static_cast<ErrorBits>(parent->sta.left)).c_str());
+                ImGui::PopStyleColor();
+            }
+            ImGui::EndGroup();
+            ImGui::SameLine();
+            ImGui::BeginGroup();
+            if (!parent->sta.right) {
+                ImGui::Text("Right Motor Okay!");
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+                ImGui::Text("Right Motor Error!");
+                ImGui::Text("%s", error_string(static_cast<ErrorBits>(parent->sta.left)).c_str());
+                ImGui::PopStyleColor();
+            }
+            ImGui::EndGroup();
+
             ImGui::TreePop();
         }
 
