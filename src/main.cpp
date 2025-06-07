@@ -1,4 +1,5 @@
 #include <csignal>
+#include <iostream>
 
 #include "BufferParser.h"
 #include "Dashboard.h"

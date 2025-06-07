@@ -23,7 +23,7 @@ public:
         Temperature = 1 << 6,
     };
 
-    enum ErrorBits {
+    enum MotorErrorBits {
         HardwareOverCurrent = 1 << 0,
         SoftwareOvercurrent = 1 << 1,
         BusOvervoltage = 1 << 2,
@@ -36,10 +36,17 @@ public:
         MotorOverspeed = 1 << 9,
     };
 
+    enum GPSErrorBits {
+        SDCardFail = 1 << 0,
+        LogFileFail = 1 << 1,
+        BadLocation = 1 << 2,
+        BadDateTime = 1 << 3,
+    };
+
 
     static void error_callback(int error_code, const char * description);
 
-    // TODO; explain 'explicit' keyword
+    // TODO: explain 'explicit' keyword
     explicit Window(Dashboard *parent);
 
     ~Window();
@@ -58,7 +65,9 @@ public:
         return closing;
     }
 
-    static std::string error_string(ErrorBits b);
+    static std::string motor_error_string(MotorErrorBits b);
+
+    static std::string gps_error_string(GPSErrorBits b);
 
 private:
     GLFWwindow *back = nullptr;

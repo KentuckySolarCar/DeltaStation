@@ -133,10 +133,10 @@ namespace DS {
                 memcpy(&bat.min_v, &buffer.data[offsetof(bat_t, min_v)], sizeof(float));
                 memcpy(&bat.avg_v, &buffer.data[offsetof(bat_t, avg_v)], sizeof(float));
                 memcpy(&bat.current, &buffer.data[offsetof(bat_t, current)], sizeof(float));
+                memcpy(&bat.soc, &buffer.data[offsetof(bat_t, soc)], sizeof(float));
                 memcpy(&bat.max_t, &buffer.data[offsetof(bat_t, max_t)], sizeof(int16_t));
                 memcpy(&bat.min_t, &buffer.data[offsetof(bat_t, min_t)], sizeof(int16_t));
                 memcpy(&bat.avg_t, &buffer.data[offsetof(bat_t, avg_t)], sizeof(int16_t));
-                memcpy(&bat.soc, &buffer.data[offsetof(bat_t, soc) - 2], sizeof(float));
 
                 if (++bat_refresh > 3) bat_refresh = 0;
             }

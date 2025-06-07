@@ -115,7 +115,20 @@ namespace DS {
         glfwSwapBuffers(back);
     }
 
-    std::string Window::error_string(ErrorBits b) {
+    std::string Window::gps_error_string(GPSErrorBits b) {
+        std::string s{};
+        if (b & SDCardFail)
+            s += "SD card initialization failure\n";
+        if (b & LogFileFail)
+            s += "Log file opening failure\n";
+        if (b & BadLocation)
+            s += "Invalid GPS location\n";
+        if (b & BadDateTime)
+            s += "Invalid GPS date/time\n";
+        return s;
+    }
+
+    std::string Window::motor_error_string(MotorErrorBits b) {
         std::string s{};
         if (b & HardwareOverCurrent)
             s += "Hardware overcurrent\n";
@@ -161,6 +174,15 @@ namespace DS {
         if (ImGui::TreeNode("GPS:")) {
             ImGui::Text("Position: %f N %f W", parent->gps.latitude, parent->gps.longitude);
 
+            if (!parent->gps.status) {
+                ImGui::Text("GPS Okay!");
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+                ImGui::Text("GPS Error!");
+                ImGui::Text("%s", gps_error_string(static_cast<GPSErrorBits>(parent->gps.status)).c_str());
+                ImGui::PopStyleColor();
+            }
+
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Arrays:")) {
@@ -168,8 +190,7 @@ namespace DS {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Batteries:")) {
-            ImGui::Text("TODO");
-            ImGui::ProgressBar(parent->bat.soc);
+            ImGui::ProgressBar(parent->bat.soc / 100.0f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Driver Inputs:")) {
@@ -183,7 +204,7 @@ namespace DS {
             } else {
                 ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
                 ImGui::Text("Left Motor Error!");
-                ImGui::Text("%s", error_string(static_cast<ErrorBits>(parent->sta.left)).c_str());
+                ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(parent->sta.left)).c_str());
                 ImGui::PopStyleColor();
             }
             ImGui::EndGroup();
@@ -194,7 +215,7 @@ namespace DS {
             } else {
                 ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
                 ImGui::Text("Right Motor Error!");
-                ImGui::Text("%s", error_string(static_cast<ErrorBits>(parent->sta.left)).c_str());
+                ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(parent->sta.left)).c_str());
                 ImGui::PopStyleColor();
             }
             ImGui::EndGroup();
@@ -202,7 +223,7 @@ namespace DS {
             ImGui::TreePop();
         }
 
-        //ImGui::Text("%s", buf.str().c_str());
+        ImGui::Text("Bitrate: %u", this->parent->bitrate);
         ImGui::End();
     }
 

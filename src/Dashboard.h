@@ -6,7 +6,7 @@
 
 #include <chrono>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 #include "BufferParser.h"
 #include "Window.h"
@@ -60,7 +60,8 @@ private:
         int32_t millis;
         // NOTE: this is different from previous delta station
         double latitude, longitude;
-        float hdop, altitude;
+        double hdop, altitude;
+        uint8_t status;
     } gps{};
     int gps_refresh{};
     struct arr_t {
@@ -71,8 +72,8 @@ private:
     struct bat_t {
         int32_t millis;
         float max_v, min_v, avg_v, current;
-        int16_t max_t, min_t, avg_t; // 2 bytes of padding
         float soc;
+        int16_t max_t, min_t, avg_t; // 2 bytes of padding
     } bat{};
     int bat_refresh{};
     struct drv_t {
@@ -84,7 +85,7 @@ private:
     int drv_refresh{};
     struct sta_t {
         int32_t millis;
-        int32_t left = 0b0101, right, log;
+        int32_t left, right, log;
     } sta{};
     int sta_refresh{};
 
