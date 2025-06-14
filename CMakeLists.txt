@@ -43,6 +43,12 @@ add_executable(ds
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
+if (MSVC_IDE)
+    set_target_properties(ds PROPERTIES ARCHIVE_OUTPUT_DIRECTORY $<1:${PROJECT_SOURCE_DIR}/build>)
+    set_target_properties(ds PROPERTIES LIBRARY_OUTPUT_DIRECTORY $<1:${PROJECT_SOURCE_DIR}/build>)
+    set_target_properties(ds PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:${PROJECT_SOURCE_DIR}/build>)
+endif()
+
 find_package(OpenGL REQUIRED)
 add_subdirectory(libs/glfw)
 
