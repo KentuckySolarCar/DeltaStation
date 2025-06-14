@@ -1,0 +1,67 @@
+# thank you, https://github.com/marketplace/actions/upload-files-to-a-github-release
+name: Publish for multiple platforms
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: ds
+            asset_name: ds-linux-amd64
+          - os: windows-latest
+            artifact_name: ds.exe
+            asset_name: ds-windows-amd64
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Setup dev environment
+      id: dev-setup
+      shell: bash
+      run: |
+        if [ ${RUNNER_OS} == 'Linux' ]; then
+          sudo python3 ./install_deps.py
+        elif [ ${RUNNER_OS} == 'Windows' ]; then
+          python3 ./install_deps.py
+        fi
+
+    - name: Submodule init
+      id: submodule-init
+      shell: bash
+      run: |
+        git submodule update --init --recursive
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        -S ${{ github.workspace }}
+
+    - name: Build
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+
