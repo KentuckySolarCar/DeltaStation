@@ -12,7 +12,7 @@ namespace DS {
         mta_power_history.resize(MAX_MOTOR_HISTORY);
         mtb_power_history.resize(MAX_MOTOR_HISTORY);
 
-        start_time = std::chrono::high_resolution_clock::now();
+        start_time = std::chrono::system_clock::now();
         window = new Window(this);
     }
 
@@ -84,7 +84,7 @@ namespace DS {
     }
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
-        auto time = std::chrono::high_resolution_clock::now();
+        auto time = std::chrono::system_clock::now();
         switch (buffer.type) {
             case BufferParser::UndefinedMessage: {
                 std::cerr << "Undefined message found!" << "\n";
@@ -96,7 +96,7 @@ namespace DS {
                 if (++mta_refresh > 3) mta_refresh = 0;
 
                 mta_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9),
-                                               mta.current * mta.voltage);
+                                               static_cast<double>(mta.current) * static_cast<double>(mta.voltage));
             }
             break;
             case BufferParser::RightMotorMessage: {

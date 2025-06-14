@@ -46,7 +46,7 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mta{};
     int mta_refresh{};
-    std::vector<std::pair<long, float>> mta_power_history;
+    std::vector<std::pair<double, double>> mta_power_history;
 
     // Right motor
     struct mtb_t {
@@ -54,7 +54,7 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mtb{};
     int mtb_refresh{};
-    std::vector<std::pair<long, float>> mtb_power_history;
+    std::vector<std::pair<double, double>> mtb_power_history;
 
     struct gps_t {
         int32_t millis;

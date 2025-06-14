@@ -50,14 +50,17 @@ jobs:
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Setup dev environment
       id: dev-setup
       shell: bash
       run: |
-        sudo python3 ./install_deps.py
+        if [ ${RUNNER_OS} == 'Linux' ]; then
+          sudo python3 ./install_deps.py
+        elif [ ${RUNNER_OS} == 'Windows' ]; then
+          python3 ./install_deps.py
+        fi
 
     - name: Submodule init
       id: submodule-init
