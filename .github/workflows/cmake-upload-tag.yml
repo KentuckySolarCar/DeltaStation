@@ -22,6 +22,7 @@ jobs:
           - os: windows-latest
             artifact_name: ds.exe
             asset_name: ds-windows-amd64.exe
+            build_type: Release
 
     steps:
     - uses: actions/checkout@v4
