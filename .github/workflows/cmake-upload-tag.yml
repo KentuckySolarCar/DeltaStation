@@ -23,7 +23,6 @@ jobs:
             artifact_name: ds.exe
             asset_name: ds-windows-amd64.exe
             build_type: Release
-            cmake_config: Release
 
     steps:
     - uses: actions/checkout@v4
@@ -56,7 +55,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        --config {{ matrix.cmake_config }} \
+        --config {{ matrix.build_type}} \
         -S ${{ github.workspace }}
 
     - name: Build
