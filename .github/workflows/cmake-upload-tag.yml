@@ -16,9 +16,11 @@ jobs:
           - os: ubuntu-22.04
             artifact_name: ds
             asset_name: ds-ubuntu22.04-amd64
+            build_type: Release
           - os: ubuntu-24.04
             artifact_name: ds
             asset_name: ds-ubuntu24.04-amd64
+            build_type: Release
           - os: windows-latest
             artifact_name: ds.exe
             asset_name: ds-windows-amd64.exe
