@@ -16,9 +16,11 @@ jobs:
           - os: ubuntu-22.04
             artifact_name: ds
             asset_name: ds-ubuntu22.04-amd64
+            build_type: Release
           - os: ubuntu-24.04
             artifact_name: ds
             asset_name: ds-ubuntu24.04-amd64
+            build_type: Release
           - os: windows-latest
             artifact_name: ds.exe
             asset_name: ds-windows-amd64.exe
@@ -59,7 +61,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
