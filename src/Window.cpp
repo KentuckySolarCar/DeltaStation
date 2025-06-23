@@ -231,8 +231,9 @@ namespace DS {
         ImGui::Begin("Motor Speed Data");
 
         if (ImPlot::BeginPlot("Motor Speed Graph")) {
-            ImPlot::PlotBars("Left Motor Speed:", &parent->mta.speed, 1);
-            ImPlot::PlotBars("Right Motor Speed:", &parent->mtb.speed, 1);
+            const char *names[2] = {"Left Motor Speed:", "Right Motor Speed:"};
+            const float values[2] = { parent->mta.speed, parent->mtb.speed };
+            ImPlot::PlotBarGroups(names, values, 2, 1);
             ImPlot::EndPlot();
         }
 
