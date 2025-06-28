@@ -32,7 +32,9 @@ namespace DS {
         // this context, there is little consequence for having it mutable vs.
         // immutable.
         char b = 0;
-        if (position == 10 || position == 11 || position == 12 || position == 13) {
+        if (position < 4)
+            b = "UKSC"[position];
+        else if (position == 10 || position == 11 || position == 12 || position == 13) {
             b = reinterpret_cast<char *>(&CURR_RAND_V)[position - 10];
         } else if (position == 14 || position == 15 || position == 16 || position == 17) {
             b = reinterpret_cast<char *>(&CURR_RAND_C)[position - 14];

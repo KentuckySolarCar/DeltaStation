@@ -9,8 +9,8 @@
 
 namespace DS {
     Dashboard::Dashboard() {
-        mta_power_history.resize(MAX_MOTOR_HISTORY);
-        mtb_power_history.resize(MAX_MOTOR_HISTORY);
+        mt_data_width = 30;
+        arr_data_width = 20;
 
         start_time = std::chrono::system_clock::now();
         window = new Window(this);
@@ -50,10 +50,8 @@ namespace DS {
         buf
                 << "    1: " << arr.a1 << "\n"
                 << "    2: " << arr.a2 << "\n"
-                << "    3: " << arr.a3 << "\n"
-                << "    4: " << arr.a4 << "\n"
-                << "    5: " << arr.a5 << "\n"
-                << "    6: " << arr.a6 << "\n";
+                << "    Power In 1: " << arr.a1_power << "\n"
+                << "    Power In 2: " << arr.a2_power << "\n";
 
         buf << REFRESH_SYMBOLS[bat_refresh] << " Battery: \n";
         buf
@@ -123,6 +121,11 @@ namespace DS {
             break;
             case BufferParser::MpptMessage: {
                 memcpy(&arr, &buffer.data[0], sizeof(arr));
+                a1_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a1);
+                a2_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a2);
+                a1_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a1_power);
+                a2_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a2_power);
+
                 if (++arr_refresh > 3) arr_refresh = 0;
             }
             break;
@@ -143,6 +146,8 @@ namespace DS {
             break;
             case BufferParser::DriverInputMessage: {
                 memcpy(&drv, &buffer.data[TIME_OFFSET], sizeof(drv));
+                throttle_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), drv.throt_pct);
+                regen_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), drv.regen_pct);
                 if (++drv_refresh > 3) drv_refresh = 0;
             }
             break;
@@ -199,7 +204,7 @@ namespace DS {
         memcpy(data + offset, "UKSC", 4);
         offset += 4;
         memset(data + offset, 0, 40 - offset);
-        offset = 40;
+        //offset = 40;
 
         foo.Encode(data, encoded);
 

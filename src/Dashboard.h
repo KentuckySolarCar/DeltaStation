@@ -15,6 +15,7 @@
 namespace DS {
 
 class Dashboard {
+    typedef std::vector<std::pair<double, double>> Graphable;
 public:
     /**
      * This constructor f
@@ -42,8 +43,6 @@ public:
 
 private:
     static char REFRESH_SYMBOLS[];
-    static constexpr size_t MAX_MOTOR_HISTORY = 60;
-    static constexpr size_t MAX_VISIBLE_POWER = 100;
 
     // Left motor
     struct mta_t {
@@ -51,7 +50,7 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mta{};
     int mta_refresh{};
-    std::vector<std::pair<double, double>> mta_power_history;
+    Graphable mta_power_history;
 
     // Right motor
     struct mtb_t {
@@ -59,7 +58,9 @@ private:
         float voltage, current, speed, odometer, battery_ah;
     } mtb{};
     int mtb_refresh{};
-    std::vector<std::pair<double, double>> mtb_power_history;
+    Graphable mtb_power_history;
+
+    size_t mt_data_width;
 
     struct gps_t {
         int32_t millis;
@@ -69,11 +70,19 @@ private:
         uint8_t status;
     } gps{};
     int gps_refresh{};
+    // TODO: refactor these names, as they're not descriptive
     struct arr_t {
         int32_t millis;
-        float a1, a2, a3, a4, a5, a6;
+        float a1, a2;
+        float a1_power, a2_power;
     } arr{};
     int arr_refresh{};
+    Graphable a1_history;
+    Graphable a2_history;
+    Graphable a1_power_history;
+    Graphable a2_power_history;
+    size_t arr_data_width;
+
     struct bat_t {
         int32_t millis;
         float max_v, min_v, avg_v, current;
@@ -85,9 +94,14 @@ private:
         int32_t millis;
         float throt_pct, regen_pct;
         int32_t throt_raw, regen_raw;
+        // NOTE: ten_v_bus is actually at 12 VOLTS
         float steering, ten_v_bus;
+        uint32_t lap_time;
     } drv{};
     int drv_refresh{};
+    Graphable throttle_history, regen_history;
+    size_t driver_input_width;
+
     struct sta_t {
         int32_t millis;
         int32_t left, right, log;
@@ -95,7 +109,6 @@ private:
     int sta_refresh{};
 
     std::chrono::system_clock::time_point start_time;
-
     std::chrono::system_clock::time_point prev_time;
     std::chrono::system_clock::time_point second_mark;
 

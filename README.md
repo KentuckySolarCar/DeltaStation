@@ -38,7 +38,7 @@ Note these are in order of importance to the project.
 - [ ] More live graphs for battery, GPS data, etc. (past 20 secs)
   - [ ] Power in
   - [ ] Regen (green), throttle (red), and raw pedal percents (past 5 mins)
-  - [ ] Array graph
+  - [x] Array graph
 - [ ] Logging configuration for dashboard state.
 - [ ] Background image.
 - [ ] Minesweeper :D

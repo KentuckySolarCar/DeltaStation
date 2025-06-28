@@ -8,6 +8,7 @@
 #include "Window.h"
 
 #include <iostream>
+#include <ranges>
 
 #include "Dashboard.h"
 #include "imgui.h"
@@ -181,6 +182,13 @@ namespace DS {
     void Window::car_state_window() {
         ImGui::Begin("Car State");
 
+        ImGui::Checkbox("Show Power Graph", &this->show_power_graph);
+        ImGui::Checkbox("Show Speed Graph", &this->show_speed_graph);
+        ImGui::Checkbox("Show Data Send Graph", &this->show_send_data);
+        ImGui::Checkbox("Show Power In Graph", &this->show_power_in_graph);
+        ImGui::Checkbox("Show Power Out Graph", &this->show_power_out_graph);
+        ImGui::Checkbox("Show Driver Inputs Graph", &this->show_driver_inputs_graph);
+
         if (ImGui::TreeNode("Motors:")) {
             ImGui::Text("Left Motor Voltage: %f V", parent->mta.voltage);
             ImGui::SameLine();
@@ -189,10 +197,6 @@ namespace DS {
             ImGui::Text("Left Motor Current: %f A", parent->mta.current);
             ImGui::SameLine();
             ImGui::Text("Right Motor Current: %f A", parent->mtb.current);
-
-            ImGui::Checkbox("Show Power Graph", &this->show_power_graph);
-
-            ImGui::Checkbox("Show Speed Graph", &this->show_speed_graph);
 
             ImGui::TreePop();
         }
@@ -211,7 +215,8 @@ namespace DS {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Arrays:")) {
-            ImGui::Text("TODO");
+            ImGui::Text("0: %f", parent->arr.a1);
+            ImGui::Text("1: %f", parent->arr.a2);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Batteries:")) {
@@ -219,7 +224,9 @@ namespace DS {
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Driver Inputs:")) {
-            ImGui::Text("TODO");
+            ImGui::Text("Throttle %%: %f", parent->drv.throt_pct);
+            ImGui::Text("Regen %%: %f", parent->drv.regen_pct);
+            ImGui::Text("Steering: %f", parent->drv.steering);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Status:")) {
@@ -284,42 +291,83 @@ namespace DS {
         ImGui::End();
     }
 
+    void Window::graph_vectors(const char *names[], Graphable *vecs[], size_t count,
+                               double data_width) {
+        for (int i = 0; i < count; i++) {
+            std::vector<double> x0{};
+            std::vector<double> y0{};
+            if (vecs[i]->size()) {
+                auto last = vecs[i]->back().first;
+                auto range = std::ranges::views::filter(*vecs[i], [data_width, last](auto &p) {
+                    return p.first >= last - data_width;
+                });
+
+                for (auto &[xd, yd]: range) {
+                    x0.push_back(xd);
+                    y0.push_back(yd);
+                }
+            }
+            ImPlot::PlotLine(
+                names[i],
+                x0.data(),
+                y0.data(),
+                static_cast<int>(x0.size())
+            );
+        }
+    }
+
+    void Window::power_in_window() const {
+        ImGui::Begin("Array Power In Data");
+
+        ImPlot::SetNextAxesToFit();
+        if (ImPlot::BeginPlot("Power In Graph")) {
+            ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
+            const char *names[2] = {"Array 1 Power:", "Array 2 Power:"};
+            Graphable *vecs[2] = {&parent->a1_history, &parent->a2_history};
+            graph_vectors(names, vecs, 2, parent->arr_data_width);
+            ImPlot::EndPlot();
+        }
+
+        ImGui::End();
+    }
+
+    void Window::power_out_window() const {
+        ImGui::Begin("Array Power Out Data");
+
+        ImPlot::SetNextAxesToFit();
+        if (ImPlot::BeginPlot("Power Out Graph")) {
+            ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Out (Watts)");
+            const char *names[2] = {"Array 1 Power Out:", "Array 2 Power Out:"};
+            Graphable *vecs[2] = {&parent->a1_power_history, &parent->a2_power_history};
+            graph_vectors(names, vecs, 2, parent->arr_data_width);
+            ImPlot::EndPlot();
+        }
+
+        ImGui::End();
+    }
+
+    void Window::driver_inputs_window() const {
+        ImGui::Begin("Driver Inputs Data");
+        ImPlot::SetNextAxesToFit();
+        if (ImPlot::BeginPlot("Driver Inputs Graph")) {
+            ImPlot::SetupAxes("Time Since Startup (seconds)", "Percentage (%)");
+            const char *names[2] = {"Throttle %", "Regen %"};
+            Graphable *vecs[2] = {&parent->throttle_history, &parent->regen_history};
+            graph_vectors(names, vecs, 2, parent->driver_input_width);
+            ImPlot::EndPlot();
+        }
+        ImGui::End();
+    }
+
     void Window::motor_power_window() const {
         ImGui::Begin("Motor Power Consumption Data");
-
-        auto &mta = parent->mta_power_history;
-
-        std::vector<double> x_left;
-        std::vector<double> y_left;
-        for (auto &[xd, yd]: mta) {
-            x_left.push_back(xd);
-            y_left.push_back(yd);
-        }
-
-        auto &mtb = parent->mtb_power_history;
-
-        std::vector<double> x_right;
-        std::vector<double> y_right;
-        for (auto &[xd, yd]: mtb) {
-            x_right.push_back(xd);
-            y_right.push_back(yd);
-        }
 
         ImPlot::SetNextAxesToFit();
         if (ImPlot::BeginPlot("Motor Power Graph")) {
             ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
-            ImPlot::PlotLine(
-                "Left Motor Power Usage:",
-                x_left.data(),
-                y_left.data(),
-                static_cast<int>(x_left.size())
-            );
-            ImPlot::PlotLine(
-                "Right Motor Power Usage:",
-                x_right.data(),
-                y_right.data(),
-                static_cast<int>(x_right.size())
-            );
+            const char *names[2] = {"Left Motor Power Usage:", "Right Motor Power Usage:"};
+            Graphable *vecs[2] = {&parent->mta_power_history, &parent->mtb_power_history};
+            graph_vectors(names, vecs, 2, parent->mt_data_width);
             ImPlot::EndPlot();
         }
         ImGui::End();
@@ -331,6 +379,13 @@ namespace DS {
             motor_power_window();
         if (show_speed_graph)
             motor_speed_window();
-        send_data_window();
+        if (show_send_data)
+            send_data_window();
+        if (show_power_in_graph)
+            power_in_window();
+        if (show_driver_inputs_graph)
+            driver_inputs_window();
+        if (show_power_out_graph)
+            power_out_window();
     }
 } // DS

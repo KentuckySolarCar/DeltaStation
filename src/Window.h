@@ -5,6 +5,7 @@
 #define WINDOW_H
 
 #include <string>
+#include <vector>
 
 #include "GLFW/glfw3.h"
 
@@ -12,6 +13,7 @@ namespace DS {
 class Dashboard;
 
 class Window {
+    typedef std::vector<std::pair<double, double>> Graphable;
 public:
     enum LimiterBits {
         PWM = 1 << 0,
@@ -61,6 +63,12 @@ public:
 
     void send_data_window();
 
+    void power_in_window() const;
+
+    void power_out_window() const;
+
+    void driver_inputs_window() const;
+
     void display();
 
     [[nodiscard]] bool should_close() const {
@@ -71,6 +79,8 @@ public:
 
     static std::string gps_error_string(GPSErrorBits b);
 
+    static void graph_vectors(const char *names[], Graphable *vecs[], size_t count, double data_width);
+
     void imgui_date_time();
 
 private:
@@ -80,6 +90,10 @@ private:
     bool closing = false;
     bool show_power_graph = true;
     bool show_speed_graph = true;
+    bool show_send_data = true;
+    bool show_power_in_graph = true;
+    bool show_driver_inputs_graph = true;
+    bool show_power_out_graph = true;
 
     float target_soc{};
     int target_unix_time;
