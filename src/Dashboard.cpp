@@ -175,5 +175,36 @@ namespace DS {
         prev_time = time;
     }
 
+    void Dashboard::send_strategy(float target_soc, int target_unix_time, uint32_t target_interval) {
+        // data format for telemetry:
+        // header (4 bytes): "GCS " (space)
+        // target_soc (4 bytes) target_unix_time (4 bytes) target_interval (4 bytes)
+        // footer (4 bytes): "UKSC"
+        // padding (20 bytes)
+        // RS-FEC (12 bytes)
+        // total: 52 bytes
+        uint8_t data[40];
+        uint8_t encoded[52];
+        int offset = 0;
+
+        memcpy(data + offset, "GCS ", 4);
+        offset += 4;
+        memcpy(data + offset, &target_soc, sizeof(target_soc));
+        offset += sizeof(target_soc);
+        memcpy(data + offset, &target_unix_time, sizeof(target_unix_time));
+        offset += sizeof(target_unix_time);
+        memcpy(data + offset, &target_interval, sizeof(target_interval));
+        offset += sizeof(target_interval);
+
+        memcpy(data + offset, "UKSC", 4);
+        offset += 4;
+        memset(data + offset, 0, 40 - offset);
+        offset = 40;
+
+        foo.Encode(data, encoded);
+
+        serial->put_bytes(reinterpret_cast<const char *>(encoded), BUFFER_LENGTH);
+    }
+
     char Dashboard::REFRESH_SYMBOLS[] = {'|', '/', '-', '\\'};
 } // DS

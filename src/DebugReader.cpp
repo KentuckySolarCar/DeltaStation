@@ -5,12 +5,14 @@
 
 #include <climits>
 #include <ctime>
+#include <iomanip>
 
 namespace DS {
     static float CURR_RAND_V = 0.0;
     static float CURR_RAND_C = 0.0;
     static float CURR_RAND_SPEED = 0.0;
     static int CURR_UNIX_TIME = 0;
+
     uint8_t DebugReader::get_byte() {
         if (position == 10) {
             CURR_RAND_V = static_cast<float>(rand()) / static_cast<float>(INT_MAX / 10);
@@ -50,5 +52,28 @@ namespace DS {
             position = 0;
         }
         return b;
+    }
+
+    void DebugReader::put(const std::string &s) {
+        std::cout << s;
+    }
+
+    void DebugReader::put_byte(const char c) {
+        std::cout << c;
+    }
+
+    void DebugReader::put_bytes(const char *buf, int len) {
+        int i = 0;
+
+        std::cout << "{\n";
+        while (i < len) {
+            std::cout << "    ";
+            for (int j = 0; j < 8; j++) {
+                std::cout << std::setw(2) << std::setfill('0') << std::hex << (buf[i++] & 0xff) << ", ";
+                if (i >= len) break;
+            }
+            std::cout << '\n';
+        }
+        std::cout << "}\n";
     }
 } // DS

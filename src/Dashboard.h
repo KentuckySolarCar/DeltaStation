@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "BufferParser.h"
+#include "IOSerial.h"
 #include "Window.h"
 
 namespace DS {
@@ -34,6 +35,10 @@ public:
     }
 
     void update();
+
+    void send_strategy(float target_soc, int target_unix_time, uint32_t uint32);
+
+    IOSerial *serial;
 
 private:
     static char REFRESH_SYMBOLS[];
@@ -101,6 +106,9 @@ private:
     Window *window = nullptr;
 
     bool closing = false;
+
+    // TODO: we have a duplicate RS encoder in BufferParser.h. Consider using that one??
+    RS::ReedSolomon<MSG_LENGTH, ECC_LENGTH> foo{};
 
     friend class Window;
 };

@@ -22,4 +22,7 @@ constexpr int TIME_OFFSET = 6;
 constexpr int DATA_OFFSET = TIME_OFFSET + sizeof(int);
 constexpr int DATA_LENGTH = BUFFER_LENGTH - DATA_OFFSET;
 
+constexpr int HOUR_TO_SEC = 60 * 60;
+constexpr int MIN_TO_SEC = 60;
+
 #endif //COMMON_H

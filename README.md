@@ -33,9 +33,12 @@ You will then see an executable file called `ds` or `ds.exe` in your build direc
 
 ## TODOs
 Note these are in order of importance to the project.
-- [ ] Dropdowns/widgets for dashboard state instead of plain-text.
-- [ ] Toggle-able live graphs.
-- [ ] More live graphs for battery, GPS data, etc.
+- [x] Dropdowns/widgets for dashboard state instead of plain-text.
+- [x] Toggle-able live graphs.
+- [ ] More live graphs for battery, GPS data, etc. (past 20 secs)
+  - [ ] Power in
+  - [ ] Regen (green), throttle (red), and raw pedal percents (past 5 mins)
+  - [ ] Array graph
 - [ ] Logging configuration for dashboard state.
 - [ ] Background image.
 - [ ] Minesweeper :D

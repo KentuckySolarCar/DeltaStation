@@ -17,8 +17,8 @@ add_executable(ds
         src/BufferParser.cpp
         src/BufferParser.h
         src/common.h
-        src/Reader.cpp
-        src/Reader.h
+        src/IOSerial.cpp
+        src/IOSerial.h
         src/Dashboard.cpp
         src/Dashboard.h
         src/DebugReader.cpp

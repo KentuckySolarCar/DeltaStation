@@ -5,11 +5,11 @@
 #define DEBUGREADER_H
 #include <cstdint>
 
-#include "Reader.h"
+#include "IOSerial.h"
 
 namespace DS {
 
-class DebugReader : public Reader {
+class DebugReader : public IOSerial {
 public:
     DebugReader() = default;
     ~DebugReader() override = default;
@@ -19,6 +19,12 @@ public:
     }
 
     uint8_t get_byte() override;
+
+    void put(const std::string &s) override;
+
+    void put_byte(char c) override;
+
+    void put_bytes(const char *buf, int len) override;
 
 private:
     int position = 0;

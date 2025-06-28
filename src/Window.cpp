@@ -22,7 +22,7 @@ namespace DS {
         std::cerr << "GLFW error: " << description << std::endl;
     }
 
-    const char * DEFAULT_NAME = "Delta Station";
+    const char *DEFAULT_NAME = "Delta Station";
     int DEFAULT_WIDTH = 1080;
     int DEFAULT_HEIGHT = 720;
 
@@ -70,6 +70,9 @@ namespace DS {
         // Initialize ImGui backend features.
         ImGui_ImplGlfw_InitForOpenGL(back, true);
         ImGui_ImplOpenGL3_Init("#version 150");
+
+        this->target_unix_time = static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
     }
 
     Window::~Window() {
@@ -126,6 +129,28 @@ namespace DS {
         if (b & BadDateTime)
             s += "Invalid GPS date/time\n";
         return s;
+    }
+
+    void Window::imgui_date_time() {
+        // TODO: move out of function
+        static char buf[9];
+
+        if (ImGui::InputTextWithHint("Input Time", "e.g. 14:30:01", buf, 9)) {
+            int hours, minutes, seconds;
+            int err = sscanf(buf, "%02d:%02d:%02d", &hours, &minutes, &seconds);
+            if (err == 3 && hours < 24 && minutes < 60 && seconds < 60) {
+                auto curr = std::chrono::system_clock::now();
+                time_t tm = std::chrono::system_clock::to_time_t(curr);
+                auto lt = std::localtime(&tm);
+                lt->tm_hour = hours;
+                lt->tm_min = minutes;
+                lt->tm_sec = seconds;
+
+                target_unix_time = static_cast<int>(mktime(lt));
+            } else {
+                printf("asdf\n");
+            }
+        }
     }
 
     std::string Window::motor_error_string(MotorErrorBits b) {
@@ -232,9 +257,28 @@ namespace DS {
 
         if (ImPlot::BeginPlot("Motor Speed Graph")) {
             const char *names[2] = {"Left Motor Speed:", "Right Motor Speed:"};
-            const float values[2] = { parent->mta.speed, parent->mtb.speed };
+            const float values[2] = {parent->mta.speed, parent->mtb.speed};
             ImPlot::PlotBarGroups(names, values, 2, 1);
             ImPlot::EndPlot();
+        }
+
+        ImGui::End();
+    }
+
+    void Window::send_data_window() {
+        ImGui::Begin("Data Sender");
+
+        ImGui::InputFloat("Target SoC", &this->target_soc, 0.0001, 0.0001, "%.6f");
+        this->target_soc = std::clamp(this->target_soc, 0.0f, 1.0f);
+        ImGui::InputInt("Target Unix Time", &this->target_unix_time, 1, 1);
+
+        imgui_date_time();
+
+        constexpr int step = 1;
+        ImGui::InputScalar("Target Interval", ImGuiDataType_U32, &this->target_interval, &step, &step);
+
+        if (ImGui::Button("Press me!")) {
+            parent->send_strategy(this->target_soc, this->target_unix_time, this->target_interval);
         }
 
         ImGui::End();
@@ -247,8 +291,8 @@ namespace DS {
 
         std::vector<double> x_left;
         std::vector<double> y_left;
-        for (auto &[xd, yd] : mta) {
-            x_left.push_back(static_cast<double>(xd));
+        for (auto &[xd, yd]: mta) {
+            x_left.push_back(xd);
             y_left.push_back(yd);
         }
 
@@ -256,8 +300,8 @@ namespace DS {
 
         std::vector<double> x_right;
         std::vector<double> y_right;
-        for (auto &[xd, yd] : mtb) {
-            x_right.push_back(static_cast<double>(xd));
+        for (auto &[xd, yd]: mtb) {
+            x_right.push_back(xd);
             y_right.push_back(yd);
         }
 
@@ -287,5 +331,6 @@ namespace DS {
             motor_power_window();
         if (show_speed_graph)
             motor_speed_window();
+        send_data_window();
     }
 } // DS

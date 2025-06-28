@@ -1,7 +1,7 @@
 /* date = April 03, 2025 7:10 PM */
 
 
-#include "Reader.h"
+#include "IOSerial.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -9,7 +9,7 @@
 #include "common.h"
 
 namespace DS {
-    Reader::Reader(const char *port, int baud) {
+    IOSerial::IOSerial(const char *port, int baud) {
         const char err = back.openDevice(port, baud);
 
         if (err != 1) {
@@ -20,7 +20,7 @@ namespace DS {
         printf("Successful serial connection to port: %s\n", port);
     }
 
-    Reader::~Reader() {
+    IOSerial::~IOSerial() {
         back.closeDevice();
     }
 } // DS

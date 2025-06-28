@@ -59,6 +59,8 @@ public:
 
     void motor_speed_window() const;
 
+    void send_data_window();
+
     void display();
 
     [[nodiscard]] bool should_close() const {
@@ -69,6 +71,8 @@ public:
 
     static std::string gps_error_string(GPSErrorBits b);
 
+    void imgui_date_time();
+
 private:
     GLFWwindow *back = nullptr;
     Dashboard *parent{};
@@ -76,6 +80,10 @@ private:
     bool closing = false;
     bool show_power_graph = true;
     bool show_speed_graph = true;
+
+    float target_soc{};
+    int target_unix_time;
+    uint32_t target_interval{};
 };
 
 } // DS

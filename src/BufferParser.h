@@ -91,6 +91,7 @@ private:
     Buffer packaged_buffer{};
     bool buffer_ready = false;
 
+    // TODO: we have a duplicate RS encoder in Dashboard.h
     RS::ReedSolomon<MSG_LENGTH, ECC_LENGTH> rs{};
 };
 
