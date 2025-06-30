@@ -6,6 +6,9 @@
 
 #include <serialib.h>
 #include <cstdint>
+#include <iostream>
+
+#include "common.h"
 
 namespace DS {
 

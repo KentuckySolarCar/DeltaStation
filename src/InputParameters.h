@@ -5,6 +5,8 @@
 #define INPUTPARAMETERS_H
 #include <string>
 
+#include "common.h"
+
 namespace DS {
 
 class InputParameters {

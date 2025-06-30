@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "GLFW/glfw3.h"
+#include "common.h"
 
 namespace DS {
 class Dashboard;

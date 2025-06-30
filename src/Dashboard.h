@@ -11,6 +11,7 @@
 #include "BufferParser.h"
 #include "IOSerial.h"
 #include "Window.h"
+#include "common.h"
 
 namespace DS {
 

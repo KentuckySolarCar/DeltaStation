@@ -14,6 +14,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include "common.h"
+
 #if !defined DEBUG && !defined __CC_ARM
 #include <cassert>
 #else

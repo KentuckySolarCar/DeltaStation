@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <ranges>
+#include <algorithm>
 
 #include "Dashboard.h"
 #include "imgui.h"

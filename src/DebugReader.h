@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "IOSerial.h"
+#include "common.h"
 
 namespace DS {
 
