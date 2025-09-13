@@ -31,14 +31,25 @@ cmake --build .
 
 You will then see an executable file called `ds` or `ds.exe` in your build directory.
 
+Next, you will need to copy the configuration file from the root directory of
+the project to your build directory. This allows DeltaStation to configure
+message buffering correctly:
+
+```shell
+cp ../sample_config.toml ./config.toml
+```
+
+You can now run the project by calling `./ds --debug` or `./ds.exe --debug` from your terminal.
+
 ## TODOs
 Note these are in order of importance to the project.
 - [x] Dropdowns/widgets for dashboard state instead of plain-text.
 - [x] Toggle-able live graphs.
+- [x] Logging configuration for dashboard state.
+- [ ] Generated live graphs
 - [ ] More live graphs for battery, GPS data, etc. (past 20 secs)
   - [ ] Power in
   - [ ] Regen (green), throttle (red), and raw pedal percents (past 5 mins)
   - [x] Array graph
-- [ ] Logging configuration for dashboard state.
 - [ ] Background image.
 - [ ] Minesweeper :D

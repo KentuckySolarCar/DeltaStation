@@ -114,9 +114,6 @@ namespace DS {
         std::string output_path;
         bool output_enabled = false;
 
-        // graph management
-        std::vector<Graph> graphs;
-
         friend class Dashboard;
     };
 } // DS
