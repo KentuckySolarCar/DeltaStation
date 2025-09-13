@@ -9,9 +9,6 @@
 
 namespace DS {
     Dashboard::Dashboard() {
-        mt_data_width = 30;
-        arr_data_width = 20;
-
         start_time = std::chrono::system_clock::now();
         window = new Window(this);
     }
@@ -23,9 +20,9 @@ namespace DS {
     void Dashboard::print(std::ostream &buf) const {
         using namespace std;
 
-        buf << REFRESH_SYMBOLS[mta_refresh] << " Motor A: \n";
         buf
-                << "    Voltage: " << mta.voltage << "\n"
+                << "    Voltage: " << *config["mta"].get_value<float>("voltage") << "\n";
+        /*
                 << "    Current: " << mta.current << "\n"
                 << "    Speed: " << mta.speed << "\n"
                 << "    Odometer: " << mta.odometer << "\n"
@@ -79,93 +76,28 @@ namespace DS {
                 << "    Right: " << sta.right << "\n"
                 << "    Log: " << sta.log << "\n";
         buf << "Bitrate: " << this->bitrate << "\n";
+        */
     }
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
-        auto time = std::chrono::system_clock::now();
-        switch (buffer.type) {
-            case BufferParser::UndefinedMessage: {
-                std::cerr << "Undefined message found!" << "\n";
-            }
-            break;
-            case BufferParser::LeftMotorMessage: {
-                memcpy(&mta, &buffer.data[0], sizeof(mta));
-                mta.millis = buffer.timestamp;
-                if (++mta_refresh > 3) mta_refresh = 0;
-
-                mta_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9),
-                                               static_cast<double>(mta.current) * static_cast<double>(mta.voltage));
-            }
-            break;
-            case BufferParser::RightMotorMessage: {
-                memcpy(&mtb, &buffer.data[0], sizeof(mtb));
-                mtb.millis = buffer.timestamp;
-                if (++mtb_refresh > 3) mtb_refresh = 0;
-
-                mtb_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9),
-                                               mtb.current * mtb.voltage);
-            }
-            break;
-            case BufferParser::GpsMessage: {
-                size_t offset = 0;
-                memcpy(&gps.millis, &buffer.data[offset], sizeof(gps.millis));
-
-                offset += sizeof(gps.millis);
-                memcpy(&gps.latitude, &buffer.data[offset], sizeof(gps.latitude) + sizeof(gps.longitude));
-
-                offset += sizeof(gps.latitude) + sizeof(gps.longitude);
-                memcpy(&gps.hdop, &buffer.data[offset], sizeof(gps.hdop) + sizeof(gps.altitude));
-
-                if (++gps_refresh > 3) gps_refresh = 0;
-            }
-            break;
-            case BufferParser::MpptMessage: {
-                memcpy(&arr, &buffer.data[0], sizeof(arr));
-                a1_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a1);
-                a2_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a2);
-                a1_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a1_power);
-                a2_power_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), arr.a2_power);
-
-                if (++arr_refresh > 3) arr_refresh = 0;
-            }
-            break;
-            case BufferParser::BatteryMessage: {
-                // due to padding issues, we need to set elements explicitly here
-                memcpy(&bat.millis, &buffer.data[0], sizeof(int32_t));
-                memcpy(&bat.max_v, &buffer.data[offsetof(bat_t, max_v)], sizeof(float));
-                memcpy(&bat.min_v, &buffer.data[offsetof(bat_t, min_v)], sizeof(float));
-                memcpy(&bat.avg_v, &buffer.data[offsetof(bat_t, avg_v)], sizeof(float));
-                memcpy(&bat.current, &buffer.data[offsetof(bat_t, current)], sizeof(float));
-                memcpy(&bat.soc, &buffer.data[offsetof(bat_t, soc)], sizeof(float));
-                memcpy(&bat.max_t, &buffer.data[offsetof(bat_t, max_t)], sizeof(int16_t));
-                memcpy(&bat.min_t, &buffer.data[offsetof(bat_t, min_t)], sizeof(int16_t));
-                memcpy(&bat.avg_t, &buffer.data[offsetof(bat_t, avg_t)], sizeof(int16_t));
-
-                if (++bat_refresh > 3) bat_refresh = 0;
-            }
-            break;
-            case BufferParser::DriverInputMessage: {
-                memcpy(&drv, &buffer.data[TIME_OFFSET], sizeof(drv));
-                throttle_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), drv.throt_pct);
-                regen_history.emplace_back(static_cast<double>((time - start_time).count()) / (1e9), drv.regen_pct);
-                if (++drv_refresh > 3) drv_refresh = 0;
-            }
-            break;
-            case BufferParser::StatusMessage: {
-                memcpy(&sta, &buffer.data[TIME_OFFSET], sizeof(sta));
-                if (++sta_refresh > 3) sta_refresh = 0;
-            }
-            break;
-            case BufferParser::SensorMessage: {
-                std::cerr << "Sensor message not supported right now." << "\n";
-            }
-            break;
+        constexpr size_t DATA_OFFSET = 4;
+        const auto *entry = this->config.get(buffer.type);
+        if (!entry) {
+            std::cerr << "Undefined message found! Unknown id: " << static_cast<uint32_t>(buffer.type) << "\n";
+            return;
         }
+        memcpy(entry->as_ptr(), &buffer.data[DATA_OFFSET], entry->get_size());
 
+        // TODO: register fields to plot
+        // update_plots(buffer);
+    }
+
+    void Dashboard::update_log() const {
     }
 
     void Dashboard::update() {
         window->update();
+        update_log();
 
         this->closing = window->should_close();
 
@@ -178,6 +110,8 @@ namespace DS {
             this->bytes_read = 0;
         }
         prev_time = time;
+
+        std::cout << *config["mta"].get_value<float>("voltage") << "\n";
     }
 
     void Dashboard::send_strategy(float target_soc, int target_unix_time, uint32_t target_interval) {
@@ -211,5 +145,13 @@ namespace DS {
         serial->put_bytes(reinterpret_cast<const char *>(encoded), BUFFER_LENGTH);
     }
 
-    char Dashboard::REFRESH_SYMBOLS[] = {'|', '/', '-', '\\'};
+    void Dashboard::set_config(const std::string &path) {
+        this->config = Config(path);
+    }
+
+    void Dashboard::debug_print_packet_ids() {
+        this->config.config["ds"].as_table()->for_each([](const toml::key &key, const toml::table &val) {
+            std::cout << key << ": " << val["id"] << '\n';
+        });
+    }
 } // DS

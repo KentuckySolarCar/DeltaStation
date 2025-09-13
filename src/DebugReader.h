@@ -16,15 +16,20 @@ public:
     ~DebugReader() override = default;
 
     int available() override {
+        // return 1; we're always able to read from debug reader.
         return 1;
     }
 
+    // returns a byte with predefined layout and contents.
     uint8_t get_byte() override;
 
+    // prints a string to std::cout
     void put(const std::string &s) override;
 
+    // prints a char to std::cout
     void put_byte(char c) override;
 
+    // prints a formatted buffer to std::cout
     void put_bytes(const char *buf, int len) override;
 
 private:

@@ -56,7 +56,7 @@ namespace DS {
             this->buffer_ready = true;
             buf_idx = 0;
 
-            delete decoded;
+            delete[] decoded;
         }
     }
 } // DS

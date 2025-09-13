@@ -1,5 +1,6 @@
-#include <csignal>
 #include <iostream>
+
+#include <toml++/toml.hpp>
 
 #include "BufferParser.h"
 #include "Dashboard.h"
@@ -24,6 +25,11 @@ int main(const int argc, char *argv[]) {
     }
 
     DS::IOSerial *s = db.serial;
+
+    db.set_config(in.get_config());
+
+    if (in.debug_mode())
+        db.debug_print_packet_ids();
 
     while (!db.should_close()) {
         if (!in.debug_mode() && !s->get_backend().isDeviceOpen()) {

@@ -51,7 +51,7 @@ namespace DS {
             exit(2);
         }
 
-        // Akin to focusing on the current window, but also helps IGui know which window to attach onto.
+        // Akin to focusing on the current window, but also helps ImGui know which window to attach onto.
         glfwMakeContextCurrent(back);
         // Enables V-Sync (less screen-tearing)
         glfwSwapInterval(1);
@@ -190,6 +190,7 @@ namespace DS {
         ImGui::Checkbox("Show Power Out Graph", &this->show_power_out_graph);
         ImGui::Checkbox("Show Driver Inputs Graph", &this->show_driver_inputs_graph);
 
+        /*
         if (ImGui::TreeNode("Motors:")) {
             ImGui::Text("Left Motor Voltage: %f V", parent->mta.voltage);
             ImGui::SameLine();
@@ -255,6 +256,7 @@ namespace DS {
 
             ImGui::TreePop();
         }
+        */
 
         ImGui::Text("Bitrate: %u", this->parent->bitrate);
         ImGui::End();
@@ -263,12 +265,14 @@ namespace DS {
     void Window::motor_speed_window() const {
         ImGui::Begin("Motor Speed Data");
 
+        /*
         if (ImPlot::BeginPlot("Motor Speed Graph")) {
             const char *names[2] = {"Left Motor Speed:", "Right Motor Speed:"};
             const float values[2] = {parent->mta.speed, parent->mtb.speed};
             ImPlot::PlotBarGroups(names, values, 2, 1);
             ImPlot::EndPlot();
         }
+        */
 
         ImGui::End();
     }
@@ -320,6 +324,7 @@ namespace DS {
     void Window::power_in_window() const {
         ImGui::Begin("Array Power In Data");
 
+        /*
         ImPlot::SetNextAxesToFit();
         if (ImPlot::BeginPlot("Power In Graph")) {
             ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
@@ -328,6 +333,7 @@ namespace DS {
             graph_vectors(names, vecs, 2, parent->arr_data_width);
             ImPlot::EndPlot();
         }
+        */
 
         ImGui::End();
     }
@@ -335,6 +341,7 @@ namespace DS {
     void Window::power_out_window() const {
         ImGui::Begin("Array Power Out Data");
 
+        /*
         ImPlot::SetNextAxesToFit();
         if (ImPlot::BeginPlot("Power Out Graph")) {
             ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Out (Watts)");
@@ -343,12 +350,14 @@ namespace DS {
             graph_vectors(names, vecs, 2, parent->arr_data_width);
             ImPlot::EndPlot();
         }
+        */
 
         ImGui::End();
     }
 
     void Window::driver_inputs_window() const {
         ImGui::Begin("Driver Inputs Data");
+        /*
         ImPlot::SetNextAxesToFit();
         if (ImPlot::BeginPlot("Driver Inputs Graph")) {
             ImPlot::SetupAxes("Time Since Startup (seconds)", "Percentage (%)");
@@ -357,12 +366,14 @@ namespace DS {
             graph_vectors(names, vecs, 2, parent->driver_input_width);
             ImPlot::EndPlot();
         }
+        */
         ImGui::End();
     }
 
     void Window::motor_power_window() const {
         ImGui::Begin("Motor Power Consumption Data");
 
+        /*
         ImPlot::SetNextAxesToFit();
         if (ImPlot::BeginPlot("Motor Power Graph")) {
             ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
@@ -371,6 +382,7 @@ namespace DS {
             graph_vectors(names, vecs, 2, parent->mt_data_width);
             ImPlot::EndPlot();
         }
+        */
         ImGui::End();
     }
 

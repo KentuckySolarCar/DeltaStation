@@ -1,0 +1,62 @@
+[ds]
+dynamic = true
+
+[ds.mta]
+id = 0x1
+voltage = {name = "Voltage", type = "f32", order = 0}
+current = {name = "Current", type = "f32", order = 1}
+speed = {name = "Speed", type = "f32", order = 2}
+odometer = {name = "Odometer", type = "f32", order = 3}
+battery_ah = {name = "Battery Amp-Hours", type = "f32", order = 4}
+
+[ds.mtb]
+id = 0x2
+voltage = {name = "", type = "f32", order = 0}
+current = {name = "", type = "f32", order = 1}
+speed = {name = "", type = "f32", order = 2}
+odometer = {name = "", type = "f32", order = 3}
+battery_ah = {name = "", type = "f32", order = 4}
+
+[ds.gps]
+id = 0x3
+latitude = {name = "", type = "f64", order = 0}
+longitude = {name = "", type = "f64", order = 1}
+hdop = {name = "", type = "f64", order = 2}
+altitude = {name = "", type = "f64", order = 3}
+status = {name = "", type = "u8", order = 4}
+
+[ds.arr]
+id = 0x4
+a1 = {name = "", type = "f32", order = 0}
+a2 = {name = "", type = "f32", order = 1}
+a1_power = {name = "", type = "f32", order = 2}
+a2_power = {name = "", type = "f32", order = 3}
+
+[ds.bat]
+id = 0x5
+max_v = {name = "", type = "f32", order = 0}
+min_v = {name = "", type = "f32", order = 1}
+avg_v = {name = "", type = "f32", order = 2}
+current = {name = "", type = "f32", order = 3}
+soc = {name = "", type = "f32", order = 4}
+max_t = {name = "", type = "u16", order = 5}
+min_t = {name = "", type = "u16", order = 6}
+avg_t = {name = "", type = "u16", order = 7}
+
+[ds.drv]
+id = 0x6
+throt_pct = {name = "", type = "f32", order = 0}
+regen_pct = {name = "", type = "f32", order = 1}
+throt_raw = {name = "", type = "u32", order = 2}
+regen_raw = {name = "", type = "u32", order = 3}
+steering = {name = "", type = "f32", order = 4}
+twelve_v_bus = {name = "", type = "f32", order = 5}
+lap_time = {name = "", type = "u32", order = 6}
+
+[logger]
+enabled = true
+output = "foo.csv"
+
+[graph]
+my_graph = {expr = "(mta.current * mta.voltage) + 5", length = "", type = "normal"}
+my_graph2 = {expr = ["arr.a1", "arr.a2"], length = "", type = "normal"}

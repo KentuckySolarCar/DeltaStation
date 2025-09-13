@@ -41,6 +41,8 @@ add_executable(ds
 
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_glfw.cpp
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp
+        src/Config.cpp
+        src/Config.h
 )
 
 if (MSVC_IDE)
@@ -55,12 +57,14 @@ add_subdirectory(libs/glfw)
 # Specify include directories for a certain target. A target is a library, executable, or anything that gets compiled by
 # CMake. As the `ds` target is a compiled executable, it is also a target. PRIVATE means that if another
 # target were to depend on `ds`, it would not inherit the same include directories or compile flags.
-target_include_directories(ds PRIVATE
+target_include_directories(ds PUBLIC
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/libs/serialib/lib
         ${CMAKE_SOURCE_DIR}/libs/implot
+        ${CMAKE_SOURCE_DIR}/libs/tomlplusplus/include
         ${ImGui_INSTALL_DIR}
 )
 
 target_link_libraries(ds PRIVATE glfw OpenGL::GL)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -12,6 +12,9 @@
 
 namespace DS {
 
+/**
+ * A class for reading data from and dumping data to serial.
+ */
 class IOSerial {
 public:
     IOSerial() = default;
@@ -20,16 +23,25 @@ public:
 
     virtual ~IOSerial();
 
+    /**
+     * @return Number of bytes that can be read by the reader.
+     */
     virtual int available() {
         return back.available();
     }
 
+    /**
+     * @return The next byte to be received from the reader.
+     */
     virtual uint8_t get_byte() {
         char c;
         back.readChar(&c, reader_timeout);
         return c;
     }
 
+    /**
+     * Writes out a byte to the serial output associated with the current port.
+     */
     virtual void put_byte(const char c) {
         if (const int err = back.writeChar(c)) {
             // TODO: recover gracefully
@@ -38,6 +50,9 @@ public:
         }
     }
 
+    /**
+     * Writes out a string to the serial output associated with the current port.
+     */
     virtual void put(const std::string &s) {
         if (const int err = back.writeString(s.c_str())) {
             // TODO: recover gracefully
@@ -46,6 +61,11 @@ public:
         }
     }
 
+    /**
+     * Writes a buffer to the serial output associated with the current port.
+     * Note that the length of the buffer must be greater than or equal to the
+     * `len` parameter.
+     */
     virtual void put_bytes(const char *buf, const int len) {
         if (const int err = back.writeBytes(buf, len)) {
             // TODO: recover gracefully
@@ -54,6 +74,9 @@ public:
         }
     }
 
+    /**
+     * @return the `serialib` backend for this reader.
+     */
     serialib &get_backend() { return back; }
 
 private:
