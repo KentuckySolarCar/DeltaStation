@@ -72,28 +72,14 @@ public:
     // called every frame, regenerates ImGui windows.
     void update();
 
-    // Displays a sliding graph of motor power consumption.
-    void motor_power_window() const;
-
-    void car_state_window();
-
-    void motor_speed_window() const;
-
-    void send_data_window();
-
-    void power_in_window() const;
-
-    void power_out_window() const;
-
-    void driver_inputs_window() const;
-
-    void expr_graph_window() const;
-
     void display();
 
     [[nodiscard]] bool should_close() const {
         return closing;
     }
+
+    void car_state_window();
+    void send_data_window();
 
     static std::string motor_error_string(MotorErrorBits b);
 

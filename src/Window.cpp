@@ -184,96 +184,7 @@ namespace DS {
     void Window::car_state_window() {
         ImGui::Begin("Car State");
 
-        ImGui::Checkbox("Show Power Graph", &this->show_power_graph);
-        ImGui::Checkbox("Show Speed Graph", &this->show_speed_graph);
-        ImGui::Checkbox("Show Data Send Graph", &this->show_send_data);
-        ImGui::Checkbox("Show Power In Graph", &this->show_power_in_graph);
-        ImGui::Checkbox("Show Power Out Graph", &this->show_power_out_graph);
-        ImGui::Checkbox("Show Driver Inputs Graph", &this->show_driver_inputs_graph);
-
-        /*
-        if (ImGui::TreeNode("Motors:")) {
-            ImGui::Text("Left Motor Voltage: %f V", parent->mta.voltage);
-            ImGui::SameLine();
-            ImGui::Text("Right Motor Voltage: %f V", parent->mtb.voltage);
-
-            ImGui::Text("Left Motor Current: %f A", parent->mta.current);
-            ImGui::SameLine();
-            ImGui::Text("Right Motor Current: %f A", parent->mtb.current);
-
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("GPS:")) {
-            ImGui::Text("Position: %f N %f W", parent->gps.latitude, parent->gps.longitude);
-
-            if (!parent->gps.status) {
-                ImGui::Text("GPS Okay!");
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-                ImGui::Text("GPS Error!");
-                ImGui::Text("%s", gps_error_string(static_cast<GPSErrorBits>(parent->gps.status)).c_str());
-                ImGui::PopStyleColor();
-            }
-
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Arrays:")) {
-            ImGui::Text("0: %f", parent->arr.a1);
-            ImGui::Text("1: %f", parent->arr.a2);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Batteries:")) {
-            ImGui::ProgressBar(parent->bat.soc / 100.0f);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Driver Inputs:")) {
-            ImGui::Text("Throttle %%: %f", parent->drv.throt_pct);
-            ImGui::Text("Regen %%: %f", parent->drv.regen_pct);
-            ImGui::Text("Steering: %f", parent->drv.steering);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Status:")) {
-            ImGui::BeginGroup();
-            if (!parent->sta.left) {
-                ImGui::Text("Left Motor Okay!");
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-                ImGui::Text("Left Motor Error!");
-                ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(parent->sta.left)).c_str());
-                ImGui::PopStyleColor();
-            }
-            ImGui::EndGroup();
-            ImGui::SameLine();
-            ImGui::BeginGroup();
-            if (!parent->sta.right) {
-                ImGui::Text("Right Motor Okay!");
-            } else {
-                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-                ImGui::Text("Right Motor Error!");
-                ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(parent->sta.left)).c_str());
-                ImGui::PopStyleColor();
-            }
-            ImGui::EndGroup();
-
-            ImGui::TreePop();
-        }
-        */
-
         ImGui::Text("Bitrate: %u", this->parent->bitrate);
-        ImGui::End();
-    }
-
-    void Window::motor_speed_window() const {
-        ImGui::Begin("Motor Speed Data");
-
-        /*
-        if (ImPlot::BeginPlot("Motor Speed Graph")) {
-            const char *names[2] = {"Left Motor Speed:", "Right Motor Speed:"};
-            const float values[2] = {parent->mta.speed, parent->mtb.speed};
-            ImPlot::PlotBarGroups(names, values, 2, 1);
-            ImPlot::EndPlot();
-        }
-        */
 
         ImGui::End();
     }
@@ -297,71 +208,6 @@ namespace DS {
         ImGui::End();
     }
 
-    void Window::power_in_window() const {
-        ImGui::Begin("Array Power In Data");
-
-        /*
-        ImPlot::SetNextAxesToFit();
-        if (ImPlot::BeginPlot("Power In Graph")) {
-            ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
-            const char *names[2] = {"Array 1 Power:", "Array 2 Power:"};
-            Graphable *vecs[2] = {&parent->a1_history, &parent->a2_history};
-            graph_vectors(names, vecs, 2, parent->arr_data_width);
-            ImPlot::EndPlot();
-        }
-        */
-
-        ImGui::End();
-    }
-
-    void Window::power_out_window() const {
-        ImGui::Begin("Array Power Out Data");
-
-        /*
-        ImPlot::SetNextAxesToFit();
-        if (ImPlot::BeginPlot("Power Out Graph")) {
-            ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Out (Watts)");
-            const char *names[2] = {"Array 1 Power Out:", "Array 2 Power Out:"};
-            Graphable *vecs[2] = {&parent->a1_power_history, &parent->a2_power_history};
-            graph_vectors(names, vecs, 2, parent->arr_data_width);
-            ImPlot::EndPlot();
-        }
-        */
-
-        ImGui::End();
-    }
-
-    void Window::driver_inputs_window() const {
-        ImGui::Begin("Driver Inputs Data");
-        /*
-        ImPlot::SetNextAxesToFit();
-        if (ImPlot::BeginPlot("Driver Inputs Graph")) {
-            ImPlot::SetupAxes("Time Since Startup (seconds)", "Percentage (%)");
-            const char *names[2] = {"Throttle %", "Regen %"};
-            Graphable *vecs[2] = {&parent->throttle_history, &parent->regen_history};
-            graph_vectors(names, vecs, 2, parent->driver_input_width);
-            ImPlot::EndPlot();
-        }
-        */
-        ImGui::End();
-    }
-
-    void Window::motor_power_window() const {
-        ImGui::Begin("Motor Power Consumption Data");
-
-        /*
-        ImPlot::SetNextAxesToFit();
-        if (ImPlot::BeginPlot("Motor Power Graph")) {
-            ImPlot::SetupAxes("Time Since Startup (seconds)", "Power Consumption (Watts)");
-            const char *names[2] = {"Left Motor Power Usage:", "Right Motor Power Usage:"};
-            Graphable *vecs[2] = {&parent->mta_power_history, &parent->mtb_power_history};
-            graph_vectors(names, vecs, 2, parent->mt_data_width);
-            ImPlot::EndPlot();
-        }
-        */
-        ImGui::End();
-    }
-
     void Window::display() {
         for (auto g: parent->get_graphs()) {
             ImGui::Begin(g.get_name());
@@ -371,17 +217,5 @@ namespace DS {
             ImGui::End();
         }
         car_state_window();
-        if (show_power_graph)
-            motor_power_window();
-        if (show_speed_graph)
-            motor_speed_window();
-        if (show_send_data)
-            send_data_window();
-        if (show_power_in_graph)
-            power_in_window();
-        if (show_driver_inputs_graph)
-            driver_inputs_window();
-        if (show_power_out_graph)
-            power_out_window();
     }
 } // DS
