@@ -10,7 +10,7 @@
 namespace DS {
     namespace Expr {
         enum TokenType {
-            Expression,
+            Identifier,
             Literal,
             UnaryMinus,
             Multiply,
@@ -28,8 +28,8 @@ namespace DS {
             void print() const {
                 std::string s;
                 switch (ty) {
-                    case Expression:
-                        s = "Expression(" + data + ")";
+                    case Identifier:
+                        s = "Identifier(" + data + ")";
                         break;
                     case Literal:
                         s = "Literal(" + data + ")";

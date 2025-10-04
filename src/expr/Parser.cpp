@@ -5,13 +5,14 @@
 
 namespace DS::Expr {
     void AST::apply(const std::string &ident, double value) {
+        if (!this->idents.contains(ident)) return;
         std::vector<AST *> applicants;
         applicants.push_back(this);
         while (!applicants.empty()) {
             AST *curr = applicants.back();
             applicants.pop_back();
             switch (curr->t.ty) {
-                case Expression:
+                case Identifier:
                     if (curr->t.data == ident) {
                         curr->t.ty = Literal;
                         curr->t.data = std::to_string(value);
@@ -108,7 +109,7 @@ namespace DS::Expr {
                 }
                 break;
             case Literal:
-            case Expression:
+            case Identifier:
                 std::cout <<
                         "Warning: attempt to fold literal or expression subtree. These nodes should have no subchildren.\n";
                 break;
@@ -120,6 +121,44 @@ namespace DS::Expr {
 
     void AST::fold() {
         _fold_helper(this);
+    }
+
+    static double _evaluate_helper(std::unordered_map<std::string, double> &values, const AST *node) {
+        double left_val = 0, right_val = 0;
+        if (node->left)
+            left_val = _evaluate_helper(values, node->left);
+        if (node->right)
+            right_val = _evaluate_helper(values, node->right);
+
+        switch (node->t.ty) {
+            case Identifier:
+                return values[node->t.data];
+            case Literal:
+                return std::stod(node->t.data);
+            case UnaryMinus:
+                return -right_val;
+            case Multiply:
+                return left_val * right_val;
+            case Divide:
+                return left_val / right_val;
+            case Add:
+                return left_val + right_val;
+            case Subtract:
+                return left_val - right_val;
+            default:
+                std::cout << "Error: Invalid token detected!\n";
+                exit(-1);
+        }
+    }
+
+    std::optional<double> AST::evaluate(std::unordered_map<std::string, double> &values) const {
+        // Check that values' keys are a superset of identifiers in AST
+        for (const auto &str : this->idents) {
+            if (!values.contains(str)) return std::nullopt;
+        }
+
+        // Depth-first traversal, filling in identifiers as they're encountered
+        return _evaluate_helper(values, this);
     }
 
     AST *_parse_helper(const std::vector<Token> &tokens, size_t curr, size_t mark) {
@@ -195,8 +234,21 @@ namespace DS::Expr {
         // now we recurse
         AST *root_node = new AST();
         root_node->t = *root;
+        if (root->ty == Identifier) {
+            root_node->idents.insert(root->data);
+        }
         root_node->left = _parse_helper(tokens, curr, root_pos);
         root_node->right = _parse_helper(tokens, root_pos + 1, mark);
+        if (root_node->left) {
+            for (const std::string &ident : root_node->left->idents) {
+                root_node->idents.insert(ident);
+            }
+        }
+        if (root_node->right) {
+            for (const std::string &ident : root_node->right->idents) {
+                root_node->idents.insert(ident);
+            }
+        }
 
         return root_node;
     }

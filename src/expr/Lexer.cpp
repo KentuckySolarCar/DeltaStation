@@ -33,7 +33,7 @@ namespace DS::Expr {
                     } else {
                         auto [ty, _] = tokens.back();
                         switch (ty) {
-                            case Expression:
+                            case Identifier:
                             case Literal:
                             case CloseParens:
                                 tokens.push_back(Token(Subtract));
@@ -85,7 +85,7 @@ namespace DS::Expr {
                     // get substring containing those characters
                     const size_t len = mark - pos;
                     const std::string data = str.substr(pos, len);
-                    tokens.push_back(Token(Expression, data));
+                    tokens.push_back(Token(Identifier, data));
                     consume(len);
                     break;
                 }
@@ -102,7 +102,7 @@ namespace DS::Expr {
         // TODO: we need function application
         Lexer lexer{};
         std::vector<Token> tokens{};
-        const std::string to_parse = "((mta.current + 2 * mtb.current) / (2.0 * -some_const))";
+        const std::string to_parse = "(drv.regen_raw + arr.a2 - (-drv.lap_time))/(2 * 0.0001)";
 
         lexer.lex(to_parse, tokens);
 
@@ -110,20 +110,16 @@ namespace DS::Expr {
             t.print();
         }
 
+        std::unordered_map<std::string, double> idents;
+        idents["drv.regen_raw"] = 10;
+        idents["arr.a2"] = 5;
+        idents["drv.lap_time"] = 1;
+
         Parser parser{};
-        auto foo = parser.parse(tokens);
+        auto parsed = parser.parse(tokens);
 
-        foo->apply("mta.current", 30.0);
-        foo->apply("mtb.current", 3.0);
+        std::cout << parsed->evaluate(idents).value() << '\n';
 
-        foo->fold();
-
-        std::cout << foo->t.data << '\n';
-
-        foo->apply("some_const", -3.0);
-
-        foo->fold();
-
-        std::cout << foo->t.data << '\n';
+        std::cout << parsed->t.data << '\n';
     }
 } // DS::Expr

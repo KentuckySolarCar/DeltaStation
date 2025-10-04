@@ -87,6 +87,8 @@ public:
 
     void driver_inputs_window() const;
 
+    void expr_graph_window() const;
+
     void display();
 
     [[nodiscard]] bool should_close() const {
@@ -119,6 +121,8 @@ private:
     float target_soc{};
     int target_unix_time;
     uint32_t target_interval{};
+    // determines whether constructor has completed. useful for knowing if ImGUI has fully initialized or not during construction.
+    bool init = false;
 };
 
 } // DS

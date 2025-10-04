@@ -7,6 +7,7 @@
 #include "DebugReader.h"
 #include "InputParameters.h"
 #include "IOSerial.h"
+#include "expr/Lexer.h"
 
 // constexpr vs const: const is stored in the compiled binary, constexpr is optimized away by the compiler (and can also
 // be used by templates.)
@@ -20,6 +21,7 @@ int main(const int argc, char *argv[]) {
     if (in.debug_mode()) {
         db.serial = new DS::DebugReader();
         std::cout << "Serial output connected to standard output.\n";
+        DS::Expr::test_lexer();
     } else {
         db.serial = new DS::IOSerial(in.get_port(), in.get_baud());
     }

@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include "Dashboard.h"
+#include "Graph.h"
 #include "imgui.h"
 #include "implot.h"
 #include "backends/imgui_impl_glfw.h"
@@ -296,31 +297,6 @@ namespace DS {
         ImGui::End();
     }
 
-    void Window::graph_vectors(const char *names[], Graphable *vecs[], size_t count,
-                               double data_width) {
-        for (int i = 0; i < count; i++) {
-            std::vector<double> x0{};
-            std::vector<double> y0{};
-            if (vecs[i]->size()) {
-                auto last = vecs[i]->back().first;
-                auto range = std::ranges::views::filter(*vecs[i], [data_width, last](auto &p) {
-                    return p.first >= last - data_width;
-                });
-
-                for (auto &[xd, yd]: range) {
-                    x0.push_back(xd);
-                    y0.push_back(yd);
-                }
-            }
-            ImPlot::PlotLine(
-                names[i],
-                x0.data(),
-                y0.data(),
-                static_cast<int>(x0.size())
-            );
-        }
-    }
-
     void Window::power_in_window() const {
         ImGui::Begin("Array Power In Data");
 
@@ -387,6 +363,13 @@ namespace DS {
     }
 
     void Window::display() {
+        for (auto g: parent->get_graphs()) {
+            ImGui::Begin(g.get_name());
+
+            g.display();
+
+            ImGui::End();
+        }
         car_state_window();
         if (show_power_graph)
             motor_power_window();

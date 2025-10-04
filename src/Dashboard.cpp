@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "Graph.h"
+#include "imgui.h"
 #include "Window.h"
 
 namespace DS {
@@ -79,25 +81,34 @@ namespace DS {
         */
     }
 
+    std::string Dashboard::id_name(size_t type) const {
+        return config.get_id(type).value();
+    }
+
+    void Dashboard::update_plots() {
+        // pseudocode:
+        for (auto &g : this->config.graphs) {
+            g.update(*this, (std::chrono::system_clock::now() - start_time).count() / 1e9);
+        }
+        // for each graph, evaluate them with new collected data
+        // store new y values with x values
+        // update array of data plots
+        // regenerate ImGui plots for each plot that is enabled.
+    }
+
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
         constexpr size_t DATA_OFFSET = 4;
-        const auto *entry = this->config.get(buffer.type);
+        const auto *entry = this->config.get(id_name(buffer.type));
         if (!entry) {
             std::cerr << "Undefined message found! Unknown id: " << static_cast<uint32_t>(buffer.type) << "\n";
             return;
         }
         memcpy(entry->as_ptr(), &buffer.data[DATA_OFFSET], entry->get_size());
-
-        // TODO: register fields to plot
-        // update_plots(buffer);
-    }
-
-    void Dashboard::update_log() const {
     }
 
     void Dashboard::update() {
+        update_plots();
         window->update();
-        update_log();
 
         this->closing = window->should_close();
 
@@ -140,7 +151,7 @@ namespace DS {
         memset(data + offset, 0, 40 - offset);
         //offset = 40;
 
-        foo.Encode(data, encoded);
+        rs.Encode(data, encoded);
 
         serial->put_bytes(reinterpret_cast<const char *>(encoded), BUFFER_LENGTH);
     }
@@ -153,5 +164,12 @@ namespace DS {
         this->config.config["ds"].as_table()->for_each([](const toml::key &key, const toml::table &val) {
             std::cout << key << ": " << val["id"] << '\n';
         });
+    }
+
+    bool Dashboard::has_key(const std::string &ident) const {
+        // TODO: what if ident doesn't have '.'?
+        const auto buffer_name = ident.substr(0, ident.find('.'));
+        const auto field_name = ident.substr(ident.find('.')+1);
+        return this->config[buffer_name].get_value<void *>(field_name).has_value();
     }
 } // DS

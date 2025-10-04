@@ -43,6 +43,14 @@ add_executable(ds
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp
         src/Config.cpp
         src/Config.h
+
+        src/expr/Lexer.cpp
+        src/expr/Lexer.h
+        src/expr/Parser.cpp
+        src/expr/Parser.h
+
+        src/Graph.cpp
+        src/Graph.h
 )
 
 if (MSVC_IDE)

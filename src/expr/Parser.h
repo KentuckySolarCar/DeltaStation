@@ -3,15 +3,22 @@
 
 #ifndef DELTASTATION_PARSER_H
 #define DELTASTATION_PARSER_H
+#include <optional>
+#include <unordered_map>
+#include <unordered_set>
+
 #include "Lexer.h"
 
 namespace DS::Expr {
     struct AST {
         Token t;
+        std::unordered_set<std::string> idents;
         AST *left{}, *right{};
 
         void apply(const std::string &ident, double value);
         void fold();
+
+        std::optional<double> evaluate(std::unordered_map<std::string, double> &values) const;
     };
 
     /**
