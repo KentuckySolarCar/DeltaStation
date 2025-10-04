@@ -1,6 +1,6 @@
 # Delta Station
 
-University of Kentucky Solar Car data aggregation and display.
+University of Kentucky Solar Car data aggregation and display. Go [here](./HOWTO.md) for brief documentation on how to use this.
 
 ## Background
 
@@ -46,10 +46,12 @@ Note these are in order of importance to the project.
 - [x] Dropdowns/widgets for dashboard state instead of plain-text.
 - [x] Toggle-able live graphs.
 - [x] Logging configuration for dashboard state.
-- [ ] Generated live graphs
-- [ ] More live graphs for battery, GPS data, etc. (past 20 secs)
-  - [ ] Power in
-  - [ ] Regen (green), throttle (red), and raw pedal percents (past 5 mins)
-  - [x] Array graph
+- [x] Generated live graphs
+- [ ] Logging:
+  - [ ] Specify log file
+  - [ ] Logging to database? Local MySQL server?
+  - [ ] Automatic data compression
+- [ ] Baud/port configuration inside Delta Station.
 - [ ] Background image.
+- [ ] Live GPS Tracking.
 - [ ] Minesweeper :D
