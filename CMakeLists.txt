@@ -2,7 +2,7 @@
 # feel free to change the version number to whatever version you have installed on your machine.
 cmake_minimum_required(VERSION 3.15)
 # Declare the name of this project (for logging purposes, etc.)
-project(DeltaStation)
+project(DeltaStation VERSION 0.2.0)
 
 # Specify which language/version used for this project (C++20 is used here)
 set(CMAKE_CXX_STANDARD 20)
