@@ -21,64 +21,7 @@ namespace DS {
 
     void Dashboard::print(std::ostream &buf) const {
         using namespace std;
-
-        buf
-                << "    Voltage: " << *config["mta"].get_value<float>("voltage") << "\n";
-        /*
-                << "    Current: " << mta.current << "\n"
-                << "    Speed: " << mta.speed << "\n"
-                << "    Odometer: " << mta.odometer << "\n"
-                << "    Battery Ah: " << mta.battery_ah << "\n";
-
-        buf << REFRESH_SYMBOLS[mtb_refresh] << " Motor B: \n";
-        buf
-                << "    Voltage: " << mtb.voltage << "\n"
-                << "    Current: " << mtb.current << "\n"
-                << "    Speed: " << mtb.speed << "\n"
-                << "    Odometer: " << mtb.odometer << "\n"
-                << "    Battery Ah: " << mtb.battery_ah << "\n";
-
-        buf << REFRESH_SYMBOLS[gps_refresh] << " GPS: \n";
-        buf
-                << "    Latitude: " << gps.latitude << "\n"
-                << "    Longitude: " << gps.longitude << "\n"
-                << "    HDOP: " << gps.hdop << "\n"
-                << "    Altitude: " << gps.altitude << "\n";
-
-        buf << REFRESH_SYMBOLS[arr_refresh] << " Array: \n";
-        buf
-                << "    1: " << arr.a1 << "\n"
-                << "    2: " << arr.a2 << "\n"
-                << "    Power In 1: " << arr.a1_power << "\n"
-                << "    Power In 2: " << arr.a2_power << "\n";
-
-        buf << REFRESH_SYMBOLS[bat_refresh] << " Battery: \n";
-        buf
-                << "    Max Voltage: " << bat.max_v << "\n"
-                << "    Min Voltage: " << bat.min_v << "\n"
-                << "    Avg Voltage: " << bat.avg_v << "\n"
-                << "    Current: " << bat.current << "\n"
-                << "    Max Temperature: " << bat.max_t << "\n"
-                << "    Min Temperature: " << bat.min_t << "\n"
-                << "    Avg Temperature: " << bat.avg_t << "\n"
-                << "    State of Charge: " << bat.soc << "\n";
-
-        buf << REFRESH_SYMBOLS[drv_refresh] << " Driver Input: \n";
-        buf
-                << "    Throttle Percent: " << drv.throt_pct << "\n"
-                << "    Regen Percent: " << drv.regen_pct << "\n"
-                << "    Raw Throttle: " << drv.throt_raw << "\n"
-                << "    Raw Regen: " << drv.regen_raw << "\n"
-                << "    Steering: " << drv.steering << "\n"
-                << "    Ten-Volt Bus: " << drv.ten_v_bus << "\n";
-
-        buf << REFRESH_SYMBOLS[sta_refresh] << " Status: \n";
-        buf
-                << "    Left: " << sta.left << "\n"
-                << "    Right: " << sta.right << "\n"
-                << "    Log: " << sta.log << "\n";
-        buf << "Bitrate: " << this->bitrate << "\n";
-        */
+        (void)buf;
     }
 
     std::string Dashboard::id_name(size_t type) const {
@@ -121,8 +64,6 @@ namespace DS {
             this->bytes_read = 0;
         }
         prev_time = time;
-
-        std::cout << *config["mta"].get_value<float>("voltage") << "\n";
     }
 
     void Dashboard::send_strategy(float target_soc, int target_unix_time, uint32_t target_interval) {
