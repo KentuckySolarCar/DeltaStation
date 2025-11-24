@@ -25,7 +25,7 @@ namespace DS {
     }
 
     std::string Dashboard::id_name(size_t type) const {
-        return config.get_id(type).value();
+        return config.get_id(type).value_or("");
     }
 
     void Dashboard::update_plots() {

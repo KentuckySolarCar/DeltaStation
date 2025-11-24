@@ -50,12 +50,12 @@ namespace DS {
             // Instead, one would explicitly call the constructor like this:
             // Buffer b = Buffer(back);
             // It is typically best practice to use "explicit" wherever possible.
-            explicit Buffer(const uint8_t back[MSG_LENGTH]);
+            explicit Buffer(const uint8_t back[BUFFER_LENGTH]);
 
             // See above enumeration
             BufferType type{UndefinedMessage};
             // Data parsed from buffer (after RS-FEC decoding). Namely, bytes 10-40 of the incoming buffer.
-            uint8_t data[MSG_LENGTH]{};
+            uint8_t data[BUFFER_LENGTH]{};
             // Message length
             uint8_t length{0};
             // Timestamp of received message
