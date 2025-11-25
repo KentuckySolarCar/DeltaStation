@@ -50,8 +50,12 @@ namespace DS {
     }
 
     void Dashboard::update() {
-        update_plots();
         window->update();
+
+        if (write_lock.try_lock()) {
+            update_plots();
+            write_lock.unlock();
+        }
 
         this->closing = window->should_close();
 

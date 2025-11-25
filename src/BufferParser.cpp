@@ -30,7 +30,6 @@ namespace DS {
             buffer[3] = c;
 
             if (strncmp(reinterpret_cast<const char *>(buffer), "UKSC", 4) == 0) {
-                std::cout << "buffer time \n";
                 reading = true;
                 buf_idx = 4;
             }
@@ -43,7 +42,6 @@ namespace DS {
         bool end_of_buffer = buf_idx == BUFFER_LENGTH;
 
         if (end_of_buffer) {
-            std::cout << "got buffer of len " << (int) buf_idx << '\n';
             // validate buffer
 
             // re-encode ReedSolomon
@@ -56,7 +54,6 @@ namespace DS {
 
             this->packaged_buffer = Buffer(decoded);
             this->buffer_ready = true;
-            std::cout << "received buffer.\n";
 
             delete[] decoded;
 

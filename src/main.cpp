@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include <toml++/toml.hpp>
 
@@ -11,6 +12,21 @@
 
 // constexpr vs const: const is stored in the compiled binary, constexpr is optimized away by the compiler (and can also
 // be used by templates.)
+
+// TODO: what if the car stops sending data? does the window updater fail?
+void telemetry_thread(DS::BufferParser *bp, DS::Dashboard *db, DS::IOSerial *s) {
+    while (!db->should_close()) {
+        if (s->available()) {
+            bp->put_byte(s->get_byte());
+            db->byte_increment();
+        }
+        if (bp->ready()) {
+            db->lock();
+            db->consume(bp->get_buffer());
+            db->unlock();
+        }
+    }
+}
 
 int main(const int argc, char *argv[]) {
     auto in = DS::InputParameters(argc, argv);
@@ -33,19 +49,13 @@ int main(const int argc, char *argv[]) {
     if (in.debug_mode())
         db.debug_print_packet_ids();
 
+    std::thread t = std::thread(telemetry_thread, &bp, &db, s);
     while (!db.should_close()) {
         if (!in.debug_mode() && !s->get_backend().isDeviceOpen()) {
             std::cerr << "Serialib Error: backend disconnected." << std::endl;
             exit(-1);
         }
-        if (s->available()) {
-            bp.put_byte(s->get_byte());
-            db.byte_increment();
-        }
-        if (bp.ready()) {
-            db.consume(bp.get_buffer());
-        }
-
         db.update();
     }
+    t.join();
 }

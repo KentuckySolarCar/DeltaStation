@@ -5,6 +5,7 @@
 #define DASHBOARD_H
 
 #include <chrono>
+#include <mutex>
 #include <vector>
 
 #include "BufferParser.h"
@@ -117,6 +118,16 @@ public:
         return ret;
     }
 
+    [[nodiscard]] bool try_lock() {
+        return write_lock.try_lock();
+    }
+    void lock() {
+        write_lock.lock();
+    }
+    void unlock() {
+        write_lock.unlock();
+    }
+
     IOSerial *serial{};
 
 private:
@@ -170,6 +181,8 @@ private:
     RS::ReedSolomon<MSG_LENGTH, ECC_LENGTH> rs{};
 
     Config config;
+
+    std::mutex write_lock;
 
     friend class Window;
 };
