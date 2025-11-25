@@ -12,7 +12,6 @@ environment, we decided to port the project to C++.
 
 This project uses git submodules for pulling dependencies and CMake for compiling the project. To ensure all the latest
 packages are pulled, open a terminal in the directory of this README and run:
-
 ```shell
 git submodule update --init --recursive
 ```

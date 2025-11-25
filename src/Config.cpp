@@ -32,10 +32,23 @@ namespace DS {
         config["graph"].as_table()->for_each([this](const toml::key &key, const toml::table &val) {
             const auto k = key.str();
 
+            auto a = val["length"];
+            auto b = a.as_floating_point();
+            float c = 20.0;
+            if (b) {
+                c = b->value_or<float>(0.0);
+            }
+
+            auto toml_value = val["expr"].as_string();
+            std::string expr = "";
+            if (toml_value) {
+                expr = toml_value->value_or("");
+            }
+
             graphs.emplace_back(
                 k.data(),
-                val["expr"].as_string()->value_or(""),
-                val["length"].as_floating_point()->value_or(0.0)
+                expr,
+                c
             );
         });
     }
