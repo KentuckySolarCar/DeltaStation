@@ -75,4 +75,6 @@ target_include_directories(ds PUBLIC
 
 target_link_libraries(ds PRIVATE glfw OpenGL::GL)
 
+target_compile_options(ds PRIVATE -g)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

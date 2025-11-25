@@ -81,6 +81,10 @@ namespace DS {
      * @return If the supplied Dashboard can provide all variables used in this graph's formula.
      */
     bool Graph::tractable(const Dashboard &db) const {
+        if (this->formula == nullptr) {
+            return false;
+        }
+
         for (const std::string &ident: this->formula->idents) {
             if (!db.has_key(ident)) return false;
         }

@@ -79,6 +79,7 @@ public:
     }
 
     void car_state_window();
+    void map_window();
     void send_data_window();
 
     static std::string motor_error_string(MotorErrorBits b);
