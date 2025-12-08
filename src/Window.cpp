@@ -247,13 +247,68 @@ namespace DS {
     void Window::map_window() {
         ImGui::Begin("Map");
 
-        int my_image_width = 0;
-        int my_image_height = 0;
-        GLuint my_image_texture = 0;
-        std::system("python ../src/map_from_overpass.py -74.0060 40.712");
-        bool ret = LoadTextureFromFile("../src/map.png", &my_image_texture, &my_image_width, &my_image_height);
-        IM_ASSERT(ret);
-        ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+        static int my_image_width = 0;
+        static int my_image_height = 0;
+        static GLuint my_image_texture = 0;
+        
+        /*
+        std::optional<double> lat_opt = parent->get_value<double>("gps.latitude");
+        double lat = 0.0;
+        if (lat_opt.has_value()) {
+            lat = lat_opt.value();
+        } else {
+            ImGui::Text("Could not find GPS latitude. Check config and add \"gps.latitude\".");
+        }
+
+        std::optional<double> lon_opt = parent->get_value<double>("gps.longitude");
+        double lon = 0.0;
+        if (lon_opt.has_value()) {
+            lon = lon_opt.value();
+        } else {
+            ImGui::Text("Could not find GPS longitute. Check config and add \"gps.longitude\".");
+        }
+        */
+        
+        static double lat = 38.0389;
+        static double lon = -84.5153;
+        
+        //if (lat_opt.has_value() && lon_opt.has_value()) {
+            ImGui::Text("Latitude: %f", lat);
+            ImGui::Text("Longidude: %f", lon);
+
+            static auto time = std::chrono::system_clock::now() - std::chrono::seconds(5); // prev time is 5 seconds ago so image comes up immediately
+            auto currentTime = std::chrono::system_clock::now(); // update every time
+
+            static int return_code = 0; // whether image was generated successfully
+            if (currentTime >= time + std::chrono::seconds(5)) {
+                if (my_image_texture != 0) // if image loaded
+                {
+                    glDeleteTextures(1, &my_image_texture); // delete from memory
+                    my_image_texture = 0;
+                }
+                
+                time = currentTime;
+                lat += 1;
+                lon += 1;
+
+                // windows
+                #if defined(_WIN32) || defined(WIN32) 
+                return_code = std::system((std::string("python ../src/gps/map_from_overpass.py ") + std::to_string(lat) + std::string(" ") + std::to_string(lon) + std::string(" >nul 2>&1")).c_str()); // call python script with arguments latitude, longitude
+                #elif defined(__unix__)
+                // linux and mac
+                return_code = std::system((std::string("python ../src/gps/map_from_overpass.py ") + std::to_string(lat) + std::string(" ") + std::to_string(lon) + std::string(" >/dev/null 2>&1")).c_str());
+                #endif
+                
+                bool ret = LoadTextureFromFile("../src/gps/map.png", &my_image_texture, &my_image_width, &my_image_height); // load image into memory
+                IM_ASSERT(ret);
+            }
+        
+            if (return_code == 1) {
+                ImGui::Text("Error generating map. Probably no internet.");
+            }
+
+            ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
+        //}
         
         ImGui::End();
     }
