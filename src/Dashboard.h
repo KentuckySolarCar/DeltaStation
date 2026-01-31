@@ -135,6 +135,11 @@ private:
         return config.graphs;
     }
 
+    // HACK: The "Wendy's cup" needed to prevent the compiler from evaluating the final else branch prematurely
+    template<typename T>
+    struct TemplatedFalse : std::false_type
+    { };
+
     template<typename T>
     static constexpr const char *type_str() {
         if constexpr (std::same_as<T, int8_t>) {
@@ -158,7 +163,8 @@ private:
         } else if constexpr (std::same_as<T, double>) {
             return "f64";
         } else {
-            static_assert(false, "Bad type!");
+            // HACK
+            static_assert(TemplatedFalse<T>::value, "Bad type!");
             return "";
         }
     }
