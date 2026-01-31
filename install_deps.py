@@ -4,8 +4,8 @@ import subprocess
 import platform as plat
 
 if plat.uname().system == "Linux":
-    ubuntu_deps = ["freeglut3-dev", "libwayland-dev", "libxkbcommon-dev", "xorg-dev"]
+    ubuntu_deps = ["libcurl4-openssl-dev", "freeglut3-dev", "libwayland-dev", "libxkbcommon-dev", "xorg-dev"]
     subprocess.run(["apt", "install", "-y"] + ubuntu_deps)
 else:
-    print("Github Windows CI needs no extra packages.")
-    #raise NotImplementedError("Windows configure not implemented yet.")
+    windows_deps = ["curl"]
+    subprocess.run(["vcpkg", "install"] + windows_deps)
