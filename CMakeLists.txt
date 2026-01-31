@@ -60,6 +60,7 @@ if (MSVC_IDE)
 endif()
 
 find_package(OpenGL REQUIRED)
+find_package(CURL 8.12.0 OPTIONAL_COMPONENTS HTTPS)
 add_subdirectory(libs/glfw)
 
 # Specify include directories for a certain target. A target is a library, executable, or anything that gets compiled by
@@ -73,7 +74,7 @@ target_include_directories(ds PUBLIC
         ${ImGui_INSTALL_DIR}
 )
 
-target_link_libraries(ds PRIVATE glfw OpenGL::GL)
+target_link_libraries(ds PRIVATE glfw OpenGL::GL CURL::libcurl)
 
 target_compile_options(ds PRIVATE -g)
 
