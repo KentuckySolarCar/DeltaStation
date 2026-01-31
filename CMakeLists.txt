@@ -60,7 +60,7 @@ if (MSVC_IDE)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(CURL 8.12.0 OPTIONAL_COMPONENTS HTTPS)
+find_package(CURL 7.81.0 OPTIONAL_COMPONENTS HTTPS)
 add_subdirectory(libs/glfw)
 
 # Specify include directories for a certain target. A target is a library, executable, or anything that gets compiled by
