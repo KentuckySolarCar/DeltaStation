@@ -25,6 +25,8 @@ add_executable(ds
         src/DebugReader.h
         src/Window.cpp
         src/Window.h
+        src/GenerateMap.cpp
+        src/GenerateMap.h
 
         libs/serialib/lib/serialib.cpp
 
@@ -71,6 +73,7 @@ target_include_directories(ds PUBLIC
         ${CMAKE_SOURCE_DIR}/libs/serialib/lib
         ${CMAKE_SOURCE_DIR}/libs/implot
         ${CMAKE_SOURCE_DIR}/libs/tomlplusplus/include
+        ${CMAKE_SOURCE_DIR}/libs/stb
         ${ImGui_INSTALL_DIR}
 )
 
