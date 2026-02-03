@@ -61,6 +61,16 @@ if (MSVC_IDE)
     set_target_properties(ds PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:${PROJECT_SOURCE_DIR}/build>)
 endif()
 
+if (GITHUB_RUNNER_BUILD)
+    if (WIN32)
+        # Source - https://stackoverflow.com/a/64143507
+        # Posted by automorphic, modified by community. See post 'Timeline' for change history
+        # Retrieved 2026-02-02, License - CC BY-SA 4.0
+
+        include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
+    endif()
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(CURL 7.81.0 OPTIONAL_COMPONENTS HTTPS)
 add_subdirectory(libs/glfw)
