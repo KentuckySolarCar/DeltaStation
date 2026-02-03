@@ -10,6 +10,12 @@
 #include <iostream>
 #include <ranges>
 #include <algorithm>
+#include <cmath>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <filesystem>
+#include <cstring>
 
 #include "Dashboard.h"
 #include "Graph.h"
@@ -17,61 +23,7 @@
 #include "implot.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-
-// Image code from at https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples#example-for-opengl-users
-#define _CRT_SECURE_NO_WARNINGS
-#define STB_IMAGE_IMPLEMENTATION
-#include "../libs/stb/stb_image.h"
-
-// Simple helper function to load an image into a OpenGL texture with common settings
-bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
-{
-    // Load from file
-    int image_width = 0;
-    int image_height = 0;
-    unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
-    if (image_data == NULL)
-        return false;
-
-    // Create a OpenGL texture identifier
-    GLuint image_texture;
-    glGenTextures(1, &image_texture);
-    glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Upload pixels into texture
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-    stbi_image_free(image_data);
-
-    *out_texture = image_texture;
-    *out_width = image_width;
-    *out_height = image_height;
-
-    return true;
-}
-
-// Open and read a file, then forward to LoadTextureFromMemory()
-bool LoadTextureFromFile(const char* file_name, GLuint* out_texture, int* out_width, int* out_height)
-{
-    FILE* f = fopen(file_name, "rb");
-    if (f == NULL)
-        return false;
-    fseek(f, 0, SEEK_END);
-    size_t file_size = (size_t)ftell(f);
-    if (file_size == -1)
-        return false;
-    fseek(f, 0, SEEK_SET);
-    void* file_data = IM_ALLOC(file_size);
-    fread(file_data, 1, file_size, f);
-    fclose(f);
-    bool ret = LoadTextureFromMemory(file_data, file_size, out_texture, out_width, out_height);
-    IM_FREE(file_data);
-    return ret;
-}
+#include "GenerateMap.h"
 
 namespace DS {
     // this function is used as a callback whenever glfw throws an error.
@@ -269,15 +221,15 @@ namespace DS {
         }
         */
         
-        static double lat = 38.0389;
-        static double lon = -84.5153;
+        static double lon = -85.5153;
+        static double lat = 37.0389;
         
         //if (lat_opt.has_value() && lon_opt.has_value()) {
-            ImGui::Text("Latitude: %f", lat);
             ImGui::Text("Longidude: %f", lon);
+            ImGui::Text("Latitude: %f", lat);
 
-            static auto time = std::chrono::system_clock::now() - std::chrono::seconds(5); // prev time is 5 seconds ago so image comes up immediately
             auto currentTime = std::chrono::system_clock::now(); // update every time
+            static auto time = currentTime - std::chrono::seconds(5); // prev time is 5 seconds ago so image comes up immediately
 
             static int return_code = 0; // whether image was generated successfully
             if (currentTime >= time + std::chrono::seconds(5)) {
@@ -288,19 +240,15 @@ namespace DS {
                 }
                 
                 time = currentTime;
-                lat += 1;
-                lon += 1;
+                lon += 1.0;
+                lat += 1.0;
 
-                // windows
-                #if defined(_WIN32) || defined(WIN32) 
-                return_code = std::system((std::string("python ../src/gps/map_from_overpass.py ") + std::to_string(lat) + std::string(" ") + std::to_string(lon) + std::string(" >nul 2>&1")).c_str()); // call python script with arguments latitude, longitude
-                #elif defined(__unix__)
-                // linux and mac
-                return_code = std::system((std::string("python ../src/gps/map_from_overpass.py ") + std::to_string(lat) + std::string(" ") + std::to_string(lon) + std::string(" >/dev/null 2>&1")).c_str());
-                #endif
+                return_code = make_map(lon, lat); // generate new map image
                 
-                bool ret = LoadTextureFromFile("../src/gps/map.png", &my_image_texture, &my_image_width, &my_image_height); // load image into memory
-                IM_ASSERT(ret);
+                if (fs::exists("map.png")) {
+                    bool ret = load_texture_from_file("map.png", &my_image_texture, &my_image_width, &my_image_height); // load image into memory
+                    IM_ASSERT(ret);
+                }
             }
         
             if (return_code == 1) {
