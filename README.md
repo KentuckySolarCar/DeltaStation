@@ -45,12 +45,17 @@ Note these are in order of importance to the project.
 - [x] Dropdowns/widgets for dashboard state instead of plain-text.
 - [x] Toggle-able live graphs.
 - [x] Logging configuration for dashboard state.
-- [x] Generated live graphs
+- [x] Generated live graphs.
+- [x] Live GPS Tracking.
+- [ ] App Control Window:
+  - [ ] Config file selection dialogue.
+  - [ ] Baud and port configuration.
 - [ ] Logging:
   - [ ] Specify log file
-  - [ ] Logging to database? Local MySQL server?
-  - [ ] Automatic data compression
+  - [ ] Logging to database
 - [ ] Baud/port configuration inside Delta Station.
+
+### Backburner:
 - [ ] Background image.
-- [ ] Live GPS Tracking.
 - [ ] Minesweeper :D
+- [ ] Automatic data compression
