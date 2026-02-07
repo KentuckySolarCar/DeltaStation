@@ -45,8 +45,10 @@ namespace DS {
             y_max = 1;
         }
 
+        double width = y_max - y_min;
+
         // TODO: specify graph axes in config
-        ImPlot::SetNextAxesLimits(x_min, x_max, y_min, y_max, ImPlotCond_Always);
+        ImPlot::SetNextAxesLimits(x_min, x_max, y_min - width * 0.1, y_max + width * 0.1, ImPlotCond_Always);
 
         if (ImPlot::BeginPlot(this->get_name())) {
             ImPlot::PlotLine(

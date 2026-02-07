@@ -25,7 +25,7 @@ namespace DS {
     }
 
     std::string Dashboard::id_name(size_t type) const {
-        return config.get_id(type).value();
+        return config.get_id(type).value_or("");
     }
 
     void Dashboard::update_plots() {
@@ -50,8 +50,12 @@ namespace DS {
     }
 
     void Dashboard::update() {
-        update_plots();
         window->update();
+
+        if (write_lock.try_lock()) {
+            update_plots();
+            write_lock.unlock();
+        }
 
         this->closing = window->should_close();
 

@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 
 namespace DS {
     BufferParser::Buffer::Buffer(const uint8_t back[MSG_LENGTH]) {
@@ -23,40 +24,41 @@ namespace DS {
     void BufferParser::put_byte(uint8_t c) {
         // check if we should start reading
         if (!reading) {
-            if (c == 'U') { // begin reading
+            buffer[0] = buffer[1];
+            buffer[1] = buffer[2];
+            buffer[2] = buffer[3];
+            buffer[3] = c;
+
+            if (strncmp(reinterpret_cast<const char *>(buffer), "UKSC", 4) == 0) {
                 reading = true;
-            } else {
-                return;
+                buf_idx = 4;
             }
-        }
-
-        buffer[buf_idx] = c;
-
-        // check if we got the right header
-        if (buf_idx == 4 && strncmp(reinterpret_cast<const char *>(buffer), "UKSC", 4) != 0) {
-            // if header is wrong, reset buffer reading
-            reading = false;
-            buf_idx = 0;
             return;
         }
 
+        buffer[buf_idx] = c;
         buf_idx++;
-        if (buf_idx == BUFFER_LENGTH) {
+
+        bool end_of_buffer = buf_idx == BUFFER_LENGTH;
+
+        if (end_of_buffer) {
             // validate buffer
 
             // re-encode ReedSolomon
-            auto decoded = new uint8_t[MSG_LENGTH];
+            auto decoded = new uint8_t[BUFFER_LENGTH];
             //rs.Decode(buffer, decoded);
-            memcpy(decoded, buffer, MSG_LENGTH);
+            memcpy(decoded, buffer, BUFFER_LENGTH);
             // create and digest buffer
             // emplace_back takes the parameters for the constructor of a class and places uses them to "emplace" a new
             // object in the vector using a constructor assumed by the compiler.
 
             this->packaged_buffer = Buffer(decoded);
             this->buffer_ready = true;
-            buf_idx = 0;
 
             delete[] decoded;
+
+            reading = false;
+            buf_idx = 0;
         }
     }
 } // DS
