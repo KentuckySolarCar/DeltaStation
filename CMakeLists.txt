@@ -6,6 +6,7 @@ project(DeltaStation VERSION 0.2.0)
 
 # Specify which language/version used for this project (C++20 is used here)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(ImGui_INSTALL_DIR libs/imgui)
 
 # Declare an executable to be built, and explicitly add every compilation unit (AKA every .cpp file) to this executable
@@ -90,5 +91,3 @@ target_include_directories(ds PUBLIC
 target_link_libraries(ds PRIVATE glfw OpenGL::GL CURL::libcurl)
 
 target_compile_options(ds PRIVATE -g)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
