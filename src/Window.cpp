@@ -8,12 +8,9 @@
 #include "Window.h"
 
 #include <iostream>
-#include <ranges>
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include <vector>
-#include <fstream>
 #include <filesystem>
 #include <cstring>
 
@@ -23,6 +20,7 @@
 #include "implot.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "portable-file-dialogs.h"
 #include "GenerateMap.h"
 
 namespace DS {
@@ -188,6 +186,19 @@ namespace DS {
         return s;
     }
 
+    void Window::app_state_window() {
+        ImGui::Begin("App State");
+
+        if (ImGui::Button("Select Configuration...")) {
+            auto f = pfd::open_file("Select Configuration...", pfd::path::home(),
+                    {"Config Files", "*.toml"}).result();
+            if (f.size() > 0)
+                this->parent->set_config(f[0]);
+        }
+
+        ImGui::End();
+    }
+
     void Window::car_state_window() {
         ImGui::Begin("Car State");
 
@@ -282,6 +293,11 @@ namespace DS {
     }
 
     void Window::display() {
+        app_state_window();
+        car_state_window();
+        map_window();
+
+        if (!parent->config.has_value()) return;
         for (auto g: parent->get_graphs()) {
             ImGui::Begin(g.get_name());
 
@@ -289,7 +305,5 @@ namespace DS {
 
             ImGui::End();
         }
-        car_state_window();
-        map_window();
     }
 } // DS

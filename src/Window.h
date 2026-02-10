@@ -5,11 +5,9 @@
 #define WINDOW_H
 
 #include <string>
-#include <chrono>
 #include <vector>
 
 #include "GLFW/glfw3.h"
-#include "common.h"
 
 namespace DS {
 class Dashboard;
@@ -79,6 +77,7 @@ public:
         return closing;
     }
 
+    void app_state_window();
     void car_state_window();
     void map_window();
     void send_data_window();

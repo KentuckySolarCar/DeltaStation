@@ -52,6 +52,7 @@ namespace DS {
 
         if (position >= sizeof(SAMPLE_BUFFER)) {
             position = 0;
+            usleep(4000);
         }
         return b;
     }

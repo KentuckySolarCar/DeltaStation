@@ -51,6 +51,7 @@ int main(const int argc, char *argv[]) {
 
     std::thread t = std::thread(telemetry_thread, &bp, &db, s);
     while (!db.should_close()) {
+        // TODO: prompt reconnection...
         if (!in.debug_mode() && !s->get_backend().isDeviceOpen()) {
             std::cerr << "Serialib Error: backend disconnected." << std::endl;
             exit(-1);

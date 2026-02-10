@@ -3,10 +3,10 @@
 
 #include "Dashboard.h"
 
+#include <filesystem>
 #include <iostream>
 
 #include "Graph.h"
-#include "imgui.h"
 #include "Window.h"
 
 namespace DS {
@@ -25,14 +25,14 @@ namespace DS {
     }
 
     std::string Dashboard::id_name(size_t type) const {
-        return config.get_id(type).value_or("");
+        return config->get_id(type).value_or("");
     }
 
     void Dashboard::update_plots() {
-        // pseudocode:
-        for (auto &g : this->config.graphs) {
+        for (auto &g : this->config->graphs) {
             g.update(*this, (std::chrono::system_clock::now() - start_time).count() / 1e9);
         }
+        // pseudocode:
         // for each graph, evaluate them with new collected data
         // store new y values with x values
         // update array of data plots
@@ -41,7 +41,9 @@ namespace DS {
 
     void Dashboard::consume(const BufferParser::Buffer &buffer) {
         constexpr size_t DATA_OFFSET = 4;
-        const auto *entry = this->config.get(id_name(buffer.type));
+        // TODO: semantics of dropped packet...
+        if (!this->config.has_value()) return;
+        const auto *entry = this->config->get(id_name(buffer.type));
         if (!entry) {
             std::cerr << "Undefined message found! Unknown id: " << static_cast<uint32_t>(buffer.type) << "\n";
             return;
@@ -53,7 +55,8 @@ namespace DS {
         window->update();
 
         if (write_lock.try_lock()) {
-            update_plots();
+            if (this->config.has_value())
+                update_plots();
             write_lock.unlock();
         }
 
@@ -102,19 +105,24 @@ namespace DS {
     }
 
     void Dashboard::set_config(const std::string &path) {
-        this->config = Config(path);
+        if (std::filesystem::exists(path))
+            this->config = Config(path);
+        else
+            this->config = std::nullopt;
     }
 
     void Dashboard::debug_print_packet_ids() {
-        this->config.config["ds"].as_table()->for_each([](const toml::key &key, const toml::table &val) {
-            std::cout << key << ": " << val["id"] << '\n';
-        });
+        if (this->config.has_value()) {
+            this->config->config["ds"].as_table()->for_each([](const toml::key &key, const toml::table &val) {
+                std::cout << key << ": " << val["id"] << '\n';
+            });
+        }
     }
 
     bool Dashboard::has_key(const std::string &ident) const {
         // TODO: what if ident doesn't have '.'?
         const auto buffer_name = ident.substr(0, ident.find('.'));
         const auto field_name = ident.substr(ident.find('.')+1);
-        return this->config[buffer_name].get_value<void *>(field_name).has_value();
+        return (*this->config)[buffer_name].get_value<void *>(field_name).has_value();
     }
 } // DS

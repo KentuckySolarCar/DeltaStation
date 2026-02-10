@@ -20,7 +20,6 @@
 namespace DS {
 
 class Dashboard {
-    typedef std::vector<std::pair<double, double>> Graphable;
 public:
     /**
      * This constructor initializes an empty window. Most of the graphics initialization is handled
@@ -36,13 +35,23 @@ public:
      */
     void print(std::ostream &buf) const;
 
+    /**
+     * NOTE: this function requires that `config` has been initialized properly.
+     * This will be an invariant upheld in the code soon.
+     */
     [[nodiscard]] std::string id_name(size_t type) const;
 
+    /**
+     * NOTE: this function requires that `config` has been initialized properly.
+     * This will be an invariant upheld in the code soon.
+     */
     void update_plots();
 
     /**
      * Accepts a prepared buffer from the buffer parser and updates the corresponding ID data
      * accordingly.
+     * NOTE: this function requires that `config` has been initialized properly.
+     * This will be an invariant upheld in the code soon.
      * @param buffer buffer from BufferParser class to consume.
      */
     void consume(const BufferParser::Buffer &buffer);
@@ -76,7 +85,7 @@ public:
         // Every identity MUST be of the form "{buffer_name}.{field_name}"
         const std::string buffer_name = ident.substr(0, ident.find('.'));
         const std::string field_name = ident.substr(ident.find('.')+1);
-        const Config::Entry *entry = this->config.get(buffer_name);
+        const Config::Entry *entry = this->config->get(buffer_name);
 
         if (!entry) return std::nullopt;
 
@@ -101,7 +110,7 @@ public:
         // Every identity MUST be of the form "{buffer_name}.{field_name}"
         const std::string buffer_name = ident.substr(0, ident.find('.'));
         const std::string field_name = ident.substr(ident.find('.')+1);
-        const Config::Entry *entry = this->config.get(buffer_name);
+        const Config::Entry *entry = this->config->get(buffer_name);
         if (!entry) {
             T ret;
             memset(&ret, 0, sizeof(ret));
@@ -131,8 +140,9 @@ public:
     IOSerial *serial{};
 
 private:
+    // TODO: this is dangerous! what if config is uninitialized???
     std::vector<Graph> &get_graphs() {
-        return config.graphs;
+        return config->graphs;
     }
 
     // HACK: The "Wendy's cup" needed to prevent the compiler from evaluating the final else branch prematurely
@@ -186,7 +196,7 @@ private:
     // TODO: we have a duplicate RS encoder in BufferParser.h. Consider using that one??
     RS::ReedSolomon<MSG_LENGTH, ECC_LENGTH> rs{};
 
-    Config config;
+    std::optional<Config> config;
 
     std::mutex write_lock;
 
