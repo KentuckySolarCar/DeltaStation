@@ -44,6 +44,9 @@ add_executable(ds
 
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_glfw.cpp
         ${ImGui_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp
+
+        libs/portable-file-dialogs/portable-file-dialogs.h
+
         src/Config.cpp
         src/Config.h
 
@@ -85,6 +88,7 @@ target_include_directories(ds PUBLIC
         ${CMAKE_SOURCE_DIR}/libs/implot
         ${CMAKE_SOURCE_DIR}/libs/tomlplusplus/include
         ${CMAKE_SOURCE_DIR}/libs/stb
+        ${CMAKE_SOURCE_DIR}/libs/portable-file-dialogs
         ${ImGui_INSTALL_DIR}
 )
 
