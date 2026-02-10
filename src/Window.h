@@ -4,6 +4,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -90,12 +92,17 @@ public:
 
     void imgui_date_time();
 
+    // variables for controlling app state window
+    std::optional<std::string> selected_path = std::nullopt;
+    std::mutex path_write_lock;
+
+    Dashboard *parent{};
+
 private:
     // error callback used by GLFW when an error occurs on its backend.
     static void error_callback(int error_code, const char * description);
 
     GLFWwindow *back = nullptr;
-    Dashboard *parent{};
 
     bool closing = false;
     bool show_power_graph = true;

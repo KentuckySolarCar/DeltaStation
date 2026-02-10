@@ -24,6 +24,16 @@
 #include "GenerateMap.h"
 
 namespace DS {
+    void config_select_thread(Window *w) {
+        auto f = pfd::open_file("Select Configuration...", pfd::path::home(),
+                {"Config Files", "*.toml"}).result();
+        if (f.size() > 0) {
+            w->path_write_lock.lock();
+            w->selected_path = f[0];
+            w->path_write_lock.unlock();
+        }
+    }
+
     // this function is used as a callback whenever glfw throws an error.
     void Window::error_callback(const int error_code, const char *description) {
         (void) error_code;
@@ -190,11 +200,15 @@ namespace DS {
         ImGui::Begin("App State");
 
         if (ImGui::Button("Select Configuration...")) {
-            auto f = pfd::open_file("Select Configuration...", pfd::path::home(),
-                    {"Config Files", "*.toml"}).result();
-            if (f.size() > 0)
-                this->parent->set_config(f[0]);
+            std::thread(config_select_thread, this).detach();
         }
+
+        this->path_write_lock.lock();
+        if (this->selected_path.has_value()) {
+            this->parent->set_config(*this->selected_path);
+            this->selected_path = std::nullopt;
+        }
+        this->path_write_lock.unlock();
 
         ImGui::End();
     }
