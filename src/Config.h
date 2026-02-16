@@ -7,8 +7,6 @@
 #include <iostream>
 #include <toml++/toml.hpp>
 
-#include "BufferParser.h"
-
 namespace DS {
     class Graph;
 
@@ -238,6 +236,7 @@ namespace DS {
             return std::nullopt;
         }
 
+        std::string config_path;
         toml::table config;
         // packet management
         std::map<std::string, Entry> id_name_pairs;

@@ -203,6 +203,13 @@ namespace DS {
             std::thread(config_select_thread, this).detach();
         }
 
+        std::optional<std::string> config_path = this->parent->get_config_path();
+        if (config_path.has_value()) {
+            ImGui::Text("Current configuration path: %s", config_path->c_str());
+        } else {
+            ImGui::Text("No configuration selected.");
+        }
+
         this->path_write_lock.lock();
         if (this->selected_path.has_value()) {
             this->parent->set_config(*this->selected_path);

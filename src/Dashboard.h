@@ -75,6 +75,7 @@ public:
     void send_strategy(float target_soc, int target_unix_time, uint32_t uint32);
 
     void set_config(const std::string &path);
+    std::optional<std::string> get_config_path();
 
     void debug_print_packet_ids();
 

@@ -11,6 +11,7 @@
 namespace DS {
     Config::Config(const std::string &filepath) {
         config = toml::parse_file(filepath);
+        config_path = filepath;
         output_enabled = config["logger"]["status"].value_or(false);
         output_path = config["logger"]["output"].value_or("out.csv");
 

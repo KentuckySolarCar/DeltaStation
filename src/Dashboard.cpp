@@ -110,6 +110,13 @@ namespace DS {
         else
             this->config = std::nullopt;
     }
+    
+    std::optional<std::string> Dashboard::get_config_path() {
+        if (this->config.has_value()) {
+            return this->config->config_path;
+        }
+        return std::nullopt;
+    }
 
     void Dashboard::debug_print_packet_ids() {
         if (this->config.has_value()) {
