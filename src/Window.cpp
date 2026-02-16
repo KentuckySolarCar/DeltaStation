@@ -277,7 +277,7 @@ namespace DS {
 
                 return_code = make_map(lon, lat); // generate new map image
                 
-                if (fs::exists("map.png")) {
+                if (std::filesystem::exists("map.png")) {
                     bool ret = load_texture_from_file("map.png", &my_image_texture, &my_image_width, &my_image_height); // load image into memory
                     IM_ASSERT(ret);
                 }
