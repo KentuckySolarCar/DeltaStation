@@ -68,7 +68,7 @@ namespace DS {
     }
 
     int make_map(double lon, double lat) try {
-        std::filesystem::remove_all(TILE_DIR);
+        //std::filesystem::remove_all(TILE_DIR);
         int center_x = lon_to_tile_x(lon, ZOOM);
         int center_y = lat_to_tile_y(lat, ZOOM);
 
@@ -133,7 +133,7 @@ namespace DS {
             final_img.w * 4
         );
 
-        std::filesystem::remove_all(TILE_DIR);
+        //std::filesystem::remove_all(TILE_DIR);
         return 0;
     }
     catch (const std::exception& e) {

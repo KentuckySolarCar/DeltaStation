@@ -105,18 +105,16 @@ private:
     GLFWwindow *back = nullptr;
 
     bool closing = false;
-    bool show_power_graph = true;
-    bool show_speed_graph = true;
-    bool show_send_data = true;
-    bool show_power_in_graph = true;
-    bool show_driver_inputs_graph = true;
-    bool show_power_out_graph = true;
 
     float target_soc{};
     int target_unix_time;
     uint32_t target_interval{};
+
     // determines whether constructor has completed. useful for knowing if ImGUI has fully initialized or not during construction.
     bool init = false;
+
+    // used by the map_window function call to properly handle map generation semantics
+    std::mutex map_generate_lock;
 };
 
 } // DS

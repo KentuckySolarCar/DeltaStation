@@ -76,7 +76,8 @@ if (GITHUB_RUNNER_BUILD)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(CURL 7.81.0 OPTIONAL_COMPONENTS HTTPS)
+# TODO: this currently builds many extra targets used in CURL, try to hide them somehow?
+add_subdirectory(libs/curl)
 add_subdirectory(libs/glfw)
 
 # Specify include directories for a certain target. A target is a library, executable, or anything that gets compiled by

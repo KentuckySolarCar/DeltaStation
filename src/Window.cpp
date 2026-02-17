@@ -256,39 +256,45 @@ namespace DS {
         static double lon = -85.5153;
         static double lat = 37.0389;
         
-        //if (lat_opt.has_value() && lon_opt.has_value()) {
-            ImGui::Text("Longidude: %f", lon);
-            ImGui::Text("Latitude: %f", lat);
+        ImGui::Text("Longidude: %f", lon);
+        ImGui::Text("Latitude: %f", lat);
 
-            auto currentTime = std::chrono::system_clock::now(); // update every time
-            static auto time = currentTime - std::chrono::seconds(5); // prev time is 5 seconds ago so image comes up immediately
+        auto currentTime = std::chrono::system_clock::now(); // update every time
+        static auto time = currentTime - std::chrono::seconds(5); // prev time is 5 seconds ago so image comes up immediately
 
-            static int return_code = 0; // whether image was generated successfully
-            if (currentTime >= time + std::chrono::seconds(5)) {
-                if (my_image_texture != 0) // if image loaded
-                {
-                    glDeleteTextures(1, &my_image_texture); // delete from memory
-                    my_image_texture = 0;
-                }
-                
-                time = currentTime;
-                lon += 1.0;
-                lat += 1.0;
+        static int return_code = 0; // whether image was generated successfully
+        if (currentTime >= time + std::chrono::seconds(5)) {
+            // if image loaded 
+            if (my_image_texture != 0) {
+                glDeleteTextures(1, &my_image_texture); // delete from memory
+                my_image_texture = 0;
+            }
 
-                return_code = make_map(lon, lat); // generate new map image
-                
+            time = currentTime;
+            lon += 1.0;
+            lat += 1.0;
+
+            // TEST THIS, then MOVE TO PERMANENT THREAD!!!!!!!!
+            std::thread([&](){
+                    this->map_generate_lock.lock();
+                    return_code = make_map(lon, lat); // generate new map image
+                    this->map_generate_lock.unlock();
+            }).detach();
+
+            if (this->map_generate_lock.try_lock()) {
                 if (std::filesystem::exists("map.png")) {
                     bool ret = load_texture_from_file("map.png", &my_image_texture, &my_image_width, &my_image_height); // load image into memory
                     IM_ASSERT(ret);
                 }
+                this->map_generate_lock.unlock();
             }
-        
-            if (return_code == 1) {
-                ImGui::Text("Error generating map. Probably no internet.");
-            }
+        }
+    
+        if (return_code == 1) {
+            ImGui::Text("Error generating map. Probably no internet.");
+        }
 
-            ImGui::Image((ImTextureID)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-        //}
+        ImGui::Image(static_cast<ImTextureID>(my_image_texture), ImVec2(my_image_width, my_image_height));
         
         ImGui::End();
     }
