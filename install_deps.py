@@ -10,5 +10,5 @@ if plat.uname().system == "Linux":
     ubuntu_deps = ["libcurl4-openssl-dev", "libpsl-dev", "freeglut3-dev", "libwayland-dev", "libxkbcommon-dev", "xorg-dev"]
     subprocess.run(["apt", "install", "-y"] + ubuntu_deps)
 else:
-    windows_deps = ["curl"]
+    windows_deps = ["curl", "libpsl"]
     subprocess.run(["vcpkg", "install"] + windows_deps)
