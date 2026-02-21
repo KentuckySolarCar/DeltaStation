@@ -6,6 +6,7 @@
 #include <climits>
 #include <ctime>
 #include <iomanip>
+#include <thread>
 
 namespace DS {
     static float CURR_RAND_V = 0.0;
@@ -52,7 +53,7 @@ namespace DS {
 
         if (position >= sizeof(SAMPLE_BUFFER)) {
             position = 0;
-            usleep(4000);
+            std::this_thread::sleep_for(std::chrono::microseconds(4000));
         }
         return b;
     }
