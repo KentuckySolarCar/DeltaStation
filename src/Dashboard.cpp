@@ -55,8 +55,14 @@ namespace DS {
         window->update();
 
         if (write_lock.try_lock()) {
-            if (this->config.has_value())
+            if (this->config.has_value()) {
                 update_plots();
+                for (auto entries : this->config->id_name_pairs) {
+                    // needed due to const qualification
+                    std::string name = entries.first;
+                    dump_entry(name, entries.second);
+                }
+            }
             write_lock.unlock();
         }
 
@@ -105,10 +111,13 @@ namespace DS {
     }
 
     void Dashboard::set_config(const std::string &path) {
-        if (std::filesystem::exists(path))
+        if (std::filesystem::exists(path)) {
             this->config = Config(path);
-        else
+            this->init_csv_storage();
+        }
+        else {
             this->config = std::nullopt;
+        }
     }
     
     std::optional<std::string> Dashboard::get_config_path() {
@@ -131,5 +140,80 @@ namespace DS {
         const auto buffer_name = ident.substr(0, ident.find('.'));
         const auto field_name = ident.substr(ident.find('.')+1);
         return (*this->config)[buffer_name].get_value<void *>(field_name).has_value();
+    }
+
+    void Dashboard::init_csv_storage() {
+        for (auto id_name_pair : config->id_name_pairs) {
+            std::string filename = id_name_pair.first + ".csv";
+            std::vector<std::string> headers;
+
+            std::filesystem::path storage_path{"./csv_storage/"};
+            std::filesystem::create_directories(storage_path);
+
+            std::filesystem::path p{filename};
+            p = storage_path / p;
+
+            std::ofstream out{p};
+
+            int field_counter = 0;
+            for (auto name_idx_pairs : id_name_pair.second.get_fields()) {
+                out << name_idx_pairs.first;
+
+                field_counter++;
+                if (field_counter <= id_name_pair.second.get_fields().size()) {
+                    out << ',';
+                }
+            }
+            out << "unix_timestamp";
+            out << std::endl;
+
+            out.close();
+        }
+    }
+
+    void dump_field(std::ofstream &out, std::string &name, Config::Entry &e) {
+        switch (e.get(name)->ty) {
+            case Config::I8: out << *e.get_value<int8_t>(name); break;
+            case Config::I16: out << *e.get_value<int16_t>(name); break;
+            case Config::I32: out << *e.get_value<int32_t>(name); break;
+            case Config::I64: out << *e.get_value<int64_t>(name); break;
+            case Config::U8: out << *e.get_value<uint8_t>(name); break;
+            case Config::U16: out << *e.get_value<uint16_t>(name); break;
+            case Config::U32: out << *e.get_value<uint32_t>(name); break;
+            case Config::U64: out << *e.get_value<uint64_t>(name); break;
+            case Config::F32: out << *e.get_value<float>(name); break;
+            case Config::F64: out << *e.get_value<double>(name); break;
+            default: break;
+        }
+    }
+
+    void Dashboard::dump_entry(std::string &name, Config::Entry &e) {
+        std::string filename = name + ".csv";
+        std::vector<std::string> headers;
+
+        std::filesystem::path storage_path{"./csv_storage/"};
+        std::filesystem::create_directories(storage_path);
+
+        std::filesystem::path p{filename};
+        p = storage_path / p;
+
+        std::ofstream out{p, std::ios_base::app};
+
+        int field_counter = 0;
+        for (auto name_idx_pairs : e.get_fields()) {
+            std::string s = name_idx_pairs.first;
+            dump_field(out, s, e);
+
+            field_counter++;
+            if (field_counter <= e.get_fields().size()) {
+                out << ',';
+            }
+        }
+        out << std::chrono::duration_cast<std::chrono::seconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+        out << std::endl;
+
+        out.close();
     }
 } // DS

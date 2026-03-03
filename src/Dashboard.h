@@ -12,6 +12,7 @@
 #include "IOSerial.h"
 #include "Window.h"
 #include "common.h"
+#include "storage/CSVStorage.h"
 
 #include <toml++/toml.hpp>
 
@@ -139,6 +140,9 @@ public:
     }
 
     IOSerial *serial{};
+
+    void init_csv_storage();
+    void dump_entry(std::string &name, Config::Entry &e);
 
 private:
     // TODO: this is dangerous! what if config is uninitialized???

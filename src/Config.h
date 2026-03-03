@@ -99,6 +99,10 @@ namespace DS {
                 return std::optional(*static_cast<T *>(f.value().data));
             }
 
+            std::map<std::string, Field> get_fields() {
+                return name_idx_pairs;
+            }
+
         private:
             uint8_t *back{};
             size_t size{};
