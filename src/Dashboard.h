@@ -5,6 +5,7 @@
 #define DASHBOARD_H
 
 #include <chrono>
+#include <filesystem>
 #include <mutex>
 #include <vector>
 
@@ -12,7 +13,6 @@
 #include "IOSerial.h"
 #include "Window.h"
 #include "common.h"
-#include "storage/CSVStorage.h"
 
 #include <toml++/toml.hpp>
 
@@ -141,8 +141,17 @@ public:
 
     IOSerial *serial{};
 
+    std::filesystem::path get_csv_storage_path();
     void init_csv_storage();
     void dump_entry(std::string &name, Config::Entry &e);
+
+    /**
+     * Currently, this is only used to modify which directory we store csv out
+     * data. This is useful to differentiate debug data from actual car data.
+     */
+    void set_debug_mode() {
+        debug_mode = true;
+    }
 
 private:
     // TODO: this is dangerous! what if config is uninitialized???
@@ -204,6 +213,8 @@ private:
     std::optional<Config> config;
 
     std::mutex write_lock;
+
+    bool debug_mode = false;
 
     friend class Window;
 };

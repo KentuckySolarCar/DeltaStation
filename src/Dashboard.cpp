@@ -142,18 +142,33 @@ namespace DS {
         return (*this->config)[buffer_name].get_value<void *>(field_name).has_value();
     }
 
+    static std::optional<uint32_t> init_timestamp = std::nullopt;
+    std::filesystem::path Dashboard::get_csv_storage_path() {
+        std::string debug_opt = "";
+        if (this->debug_mode) {
+            debug_opt = "_debug";
+        }
+        std::filesystem::path storage_path{"./csv_storage" + debug_opt};
+
+        if (!init_timestamp.has_value()) {
+            init_timestamp = std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+            ).count();
+        }
+
+        storage_path /= std::to_string(*init_timestamp);
+        std::filesystem::create_directories(storage_path);
+
+        return storage_path;
+
+    }
     void Dashboard::init_csv_storage() {
         for (auto id_name_pair : config->id_name_pairs) {
             std::string filename = id_name_pair.first + ".csv";
             std::vector<std::string> headers;
 
-            std::filesystem::path storage_path{"./csv_storage/"};
-            std::filesystem::create_directories(storage_path);
-
             std::filesystem::path p{filename};
-            p = storage_path / p;
-
-            std::ofstream out{p};
+            std::ofstream out{get_csv_storage_path() / p};
 
             int field_counter = 0;
             for (auto name_idx_pairs : id_name_pair.second.get_fields()) {
@@ -191,13 +206,9 @@ namespace DS {
         std::string filename = name + ".csv";
         std::vector<std::string> headers;
 
-        std::filesystem::path storage_path{"./csv_storage/"};
-        std::filesystem::create_directories(storage_path);
-
         std::filesystem::path p{filename};
-        p = storage_path / p;
 
-        std::ofstream out{p, std::ios_base::app};
+        std::ofstream out{get_csv_storage_path() / p, std::ios_base::app};
 
         int field_counter = 0;
         for (auto name_idx_pairs : e.get_fields()) {

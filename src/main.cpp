@@ -36,6 +36,7 @@ int main(const int argc, char *argv[]) {
 
     if (in.debug_mode()) {
         db.serial = new DS::DebugReader();
+        db.set_debug_mode();
         std::cout << "Serial output connected to standard output.\n";
         DS::Expr::test_lexer();
     } else {
