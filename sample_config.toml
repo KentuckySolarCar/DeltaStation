@@ -1,5 +1,6 @@
 [ds]
 dynamic = true
+config_name = "default"
 
 [ds.mta]
 id = 0x1
@@ -58,5 +59,6 @@ enabled = true
 output = "foo.csv"
 
 [graph]
-my_graph = {expr = "(mta.current * mta.voltage) + 5", length = "", type = "normal"}
-my_graph2 = {expr = ["arr.a1", "arr.a2"], length = "", type = "normal"}
+#my_graph = {expr = "(mta.current * mta.voltage) + 5", length = "", type = "normal"}
+#my_graph2 = {expr = ["arr.a1", "arr.a2"], length = "", type = "normal"}
+my_graph = {expr = "bat.soc", length = "", type = "normal"}

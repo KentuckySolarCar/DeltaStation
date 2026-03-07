@@ -241,6 +241,7 @@ namespace DS {
         }
 
         std::string config_path;
+        std::string config_name;
         toml::table config;
         // packet management
         std::map<std::string, Entry> id_name_pairs;

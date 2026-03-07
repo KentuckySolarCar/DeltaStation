@@ -157,6 +157,7 @@ namespace DS {
         }
 
         storage_path /= std::to_string(*init_timestamp);
+        storage_path /= config->config_name;
         std::filesystem::create_directories(storage_path);
 
         return storage_path;

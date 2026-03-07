@@ -235,7 +235,6 @@ namespace DS {
         static int my_image_height = 0;
         static GLuint my_image_texture = 0;
         
-        /*
         std::optional<double> lat_opt = parent->get_value<double>("gps.latitude");
         double lat = 0.0;
         if (lat_opt.has_value()) {
@@ -251,10 +250,6 @@ namespace DS {
         } else {
             ImGui::Text("Could not find GPS longitute. Check config and add \"gps.longitude\".");
         }
-        */
-        
-        static double lon = -85.5153;
-        static double lat = 37.0389;
         
         ImGui::Text("Longidude: %f", lon);
         ImGui::Text("Latitude: %f", lat);
@@ -271,8 +266,6 @@ namespace DS {
             }
 
             time = currentTime;
-            lon += 1.0;
-            lat += 1.0;
 
             // TEST THIS, then MOVE TO PERMANENT THREAD!!!!!!!!
             std::thread([&](){
