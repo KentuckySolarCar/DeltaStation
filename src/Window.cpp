@@ -225,6 +225,34 @@ namespace DS {
 
         ImGui::Text("Bitrate: %u", this->parent->bitrate);
 
+        ImGui::BeginGroup();
+
+        // TODO: proper null checking!!!!!
+        std::optional<int> left_status = parent->get_value<int>("sta.left_status");
+        std::optional<int> right_status = parent->get_value<int>("sta.right_status");
+        if (!*left_status) {
+            ImGui::Text("Left Motor Okay!");
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::Text("Left Motor Error!");
+            ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(*left_status)).c_str());
+            std::cout << *left_status << '\n';
+            ImGui::PopStyleColor();
+        }
+        ImGui::EndGroup();
+        ImGui::SameLine();
+        ImGui::BeginGroup();
+        if (!*right_status) {
+            ImGui::Text("Right Motor Okay!");
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::Text("Right Motor Error!");
+            ImGui::Text("%s", motor_error_string(static_cast<MotorErrorBits>(*right_status)).c_str());
+            std::cout << *right_status << '\n';
+            ImGui::PopStyleColor();
+        }
+        ImGui::EndGroup();
+
         ImGui::End();
     }
 

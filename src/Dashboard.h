@@ -212,6 +212,10 @@ private:
 
     std::optional<Config> config;
 
+    // name of test, for future lookup
+    // TODO: implement this!!!
+    std::string test_name;
+
     std::mutex write_lock;
 
     bool debug_mode = false;

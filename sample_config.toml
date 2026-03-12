@@ -54,6 +54,12 @@ steering = {name = "", type = "f32", order = 4}
 twelve_v_bus = {name = "", type = "f32", order = 5}
 lap_time = {name = "", type = "u32", order = 6}
 
+[ds.sta]
+id = 0x7
+left_status = {name = "Left Status", type = "i32", order = 0}
+right_status = {name = "Right Status", type = "i32", order = 1}
+aux_pack_voltage = {name = "AUX Pack Voltage", type = "f32", order = 2}
+
 [logger]
 enabled = true
 output = "foo.csv"
@@ -61,4 +67,6 @@ output = "foo.csv"
 [graph]
 #my_graph = {expr = "(mta.current * mta.voltage) + 5", length = "", type = "normal"}
 #my_graph2 = {expr = ["arr.a1", "arr.a2"], length = "", type = "normal"}
-my_graph = {expr = "bat.soc", length = "", type = "normal"}
+soc = {expr = "bat.soc", length = "", type = "normal"}
+throt_pct = {expr = "drv.throt_pct", length = "", type = "normal"}
+regen_pct = {expr = "drv.regen_pct", length = "", type = "normal"}
